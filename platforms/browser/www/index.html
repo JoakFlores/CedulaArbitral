@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+
+    <!-- Las sig. 4 líneas fueron copiadas de la documentación del FrameWork7 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Color theme for statusbar (Android only) -->
+    <meta name="theme-color" content="#2196f3">
+
+    <!-- Sig. dos líneas copiadas de la documentación  Framework7 -->
+    <!-- Path to Framework7 Library Bundle CSS -->
+    <link rel="stylesheet" href="css/framework7.bundle.min.css">
+    <!-- Path para los fonts -->
+    <link rel="stylesheet" href="css/framework7-icons.css">
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <title>Cédula Arbitral</title>
+</head>
+
+<body>
+  <!-- App root element -->
+  <div id="app">
+    <!-- Your main view, should have "view-main" class -->
+    <div class="view view-main">
+      <!-- Initial Page, "data-name" contains page name -->
+      <div data-name="home" class="page">
+        <div class="page-content">
+
+          <div class="div-splash">
+            <img class="img_splash" src="img/Splash.png">
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+  
+  <!-- Sig. dos líneas copiadas de la documentación  Framework7 -->
+  <!-- Path to Framework7 Library Bundle JS-->
+  <script type="text/javascript" src="js/framework7.bundle.min.js"></script>
+  <script type="text/javascript" src="cordova.js"></script>
+  <script type="text/javascript" src="js/index.js"></script>
+  <script type="text/javascript">
+    //app.initialize();
+    WaitSplashScreen();
+  </script>
+</body>
+
+</html>
