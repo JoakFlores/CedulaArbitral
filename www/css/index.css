@@ -9,9 +9,11 @@
     padding: 0;
 }
 
+
 :root {
     --f7-navbar-bg-color: orange ;
     --f7-panel-bg-color: RGB(33,33,33);
+    --f7-font-family: DS-Point, Roboto, system-ui, Noto, Helvetica, Arial, sans-serif;
   }
 
   /* Configuración para todos los botones */
@@ -29,11 +31,12 @@
 }
 
 .img_splash{
-    width: 100%;
     position: absolute;
-    top: 0;
-    bottom: 0;
-    margin: auto;
+    margin:auto;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
 }
 
 .dialog-title{
@@ -132,28 +135,340 @@
 
 .font-navbar{
     font-family: -webkit-pictograph;
-    font-weight: bold;
+    /*font-weight: bold;*/
     font-weight: 0;
 }
 
+
 .page-settings{
-    background: url('../img/BackGround1.jpg');
-    /*background-color: green;*/
-    /*background-size: contain;*/
-    background-size: 100% auto;
+    background: url('../img/BackGroundConfig.jpg');
+    background-size: 100% 90%;
     background-repeat: no-repeat;
-    /*
-    height: 100%;
-    width: 100%;
-    */
-    /* background-position: center; */
+    margin-top:55px;
     background-position: center top;
-    /* background-size: cover; */
+    padding-top: 20px;
+}
+
+.page-ced-seleccionar{
+    background: url('../img/BackGroundCedSel.jpg');
+    background-size: 100% 90%;
+    background-repeat: no-repeat;
+    margin-top:55px;
+    background-position: center top;
+    padding-top: 20px;
+    padding-bottom: 60px;
+}
+
+.page-tablero{
+    background: black;
+    margin-top:55px;
+    padding-top: 20px;
+}
+
+.page-goles{
+    background: url('../img/BackGroundGol.jpg');
+    background-size: 100% 90%;
+    background-repeat: no-repeat;
+    margin-top:55px;
+    background-position: center top;
+    padding-top: 20px;
+    padding-bottom: 60px;
 }
 
 .list-page-settings{
 	width: 70%;
     margin-left: 30px;
+    margin-top: 5px;
+}
+
+.toolbar-inner{
+    /* El texto que está dentro de la barra del calendario */
+    color: orange;
+}
+
+.block-title-cargar-juegos{
+    font-weight: bold;
+}
+
+.list-cedula-sel{
+    margin: 0;
+    margin-left: 45%;
+    /*background: yellow;*/
+    text-align: center;
+    margin-right: .6%;
+    /*border: 1px solid black;*/
+    /*border-radius: 5px;*/
+}
+
+.block-cedula-sel0{
+    margin: 0;
+    margin-bottom: 5px;
+    /*margin-left: 45%;*/
+    /*background: yellow;*/
+    text-align: center;
+    margin-right: 5%;
+    border: 1px solid black;
+    border-radius: 5px;
+    width: 100%;
+}
+
+.block-cedula-sel1{
+    width: 86%;
+    margin-top: 0;
+    margin-bottom: 0;
+    border-radius: 5px;
+    background: orange;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.block-cedula-sel2{
+    width: 100%;
+    margin: 0;
+    margin-top: 8px;
+    font-weight: bold;
+    /*background: gray;*/
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0;
+}
+
+.block-cedula-sel3{
+    width: 100%;
+    margin: 0;
+    /*margin-top: 15px;*/
+    font-weight: bold;
+    /*background:violet  ;*/
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0;
+}
+
+.row-cedula-sel-text1{
+    font-size: 12px;
+}
+
+.row-cedula-sel-text2{
+    font-size: 12px;
+    color: red;
+}
+
+.row-cedula-sel-text2-2{
+    font-size: 12px;
+    color: green;
+}
+
+.row-cedula-sel-text3{
+    font-size: 15px;
+    padding: 0;
+    margin: 0;
+}
+
+.row-cedula-sel-text4{
+    margin: 0;
+    font-size: 27px;
+}
+
+.row-cedula-sel-text5{
+    font-size: 12px;
+    color: green;
+}
+
+.row-marcadores{
+    font-size: 27px;
+}
+
+.block-tablero{
+    width: 96%;
+    height: 83%;
+    margin-top: 0;
+    margin-bottom: 0;
+    border-radius: 15px;
+    background: black;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0;
+    padding-right: 0;
+    border: 1.5px;
+    border-style: solid;
+    border-color: white;
+}
+
+.row-tablero-titulo-text1{
+    font-size: 25px;
+    color: white;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+}
+
+.row-tablero-titulo-text2{
+    font-size: 15px;
+    color: white;
+    /*width: 100%;*/
+    text-align: center;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+.col-tablero-equipos{
+    color:white;
+    /*
+    border-color: white;
+    border: 1.0px;
+    border-style: solid;
+    */
+}
+
+.row-tablero-cronometro{
+    font-size: 50px;
+    color: white;
+    width: 100%;
+    font-weight: bold;
+}
+
+.row-tablero-titulo-text3{
+    width: 100%;
+    text-align: center;
+}
+
+.col-tablero-marcador{
+    font-size: 80px;
+    color: RGB(0,255,0);
+    border: 0;
+    font-family: DS-Point;
+}
+
+.col-tablero-cronometro{
+    color:red;
+    font-size: 60px;
+    font-family: fantasy;
+    border-color: white;
+    border-style: solid;
+    border-radius: 5px;
+    font-family: DS-Point;
+
+}
+
+
+.block-cronometro{
+    width: 25%;
+    height: 25%;
+    margin-top: 14px;
+    border-radius: 15px;
+    background: black;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0;
+    padding-right: 0;
+    border: 1.5px;
+    border-style: solid;
+    border-color: white;
+    text-align: center;
+}
+
+.row-tablero-titulo-periodo{
+    font-size: 12px;
+    color: white;
+    width: 100%;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.row-tablero-titulo-text4{
+    width: 25%;
+    color: white;
+    text-align: center;
+    border-style: solid;
+    margin: auto;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.col-tablero-text-faltas{
+    border-color: white;
+}
+
+.col-tablero-falta{
+    color:yellow;
+    border: 0;
+    font-family: DS-Point;
+}
+
+.col-tablero-periodo{
+    color: red;
+    border: 0;
+    font-family: DS-Point;
+}
+
+.row-tablero-titulo-text5{
+    font-size: 40px;
+    width: 100%;
+    text-align: center;
+}
+
+.row-tablero-boton{
+    width:20%;
+    margin: auto;
+    margin-bottom: 20px;
+}
+
+.block-title-goles{
+    margin: 0;
+    margin-left:42%;
+    font-size: 15px;
+    color: red;
+    /*padding-bottom: 3px;*/
+    font-family: serif;
+}
+
+.block-jugador-gol{
+    width: 100%;
+    margin-top: 0;
+    border: 1px solid black;
+    border-radius: 5px;
+    margin-bottom: 3px;
+}
+
+.list-goles{
+    margin: 0;
+    margin-left: 42%;
+    /*background: yellow;*/
+    text-align: center;
+    margin-right: 1%;
+    
+    /*
+    Esto es para abarcar toda la lista
+    box-shadow: 1px 3px #888888;
+    border: 1px solid black;
+    border-radius: 5px;
+    */
+}
+
+.col-jugador-datos-gol{
+    text-align: left;
+    padding-right: 160px;
+    background: orange;
+    border-radius: 5px;
+    font-family: serif;
+}
+
+.col-icon-balon-gol{
+    margin: 0;
+    text-align: right;
+    padding-top: 10px;
+}
+
+.col-icon-suma-gol{
+    padding-top: 23px;
+}
+
+.col-numgoles-gol{
+    text-align: left;
+    font-size: 40px;
+    padding-top: 9px;
 }
 
 body {
