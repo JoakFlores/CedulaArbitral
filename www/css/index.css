@@ -175,6 +175,16 @@
     padding-bottom: 60px;
 }
 
+.page-tarjetas{
+    background: url('../img/BackGroundFalta.jpg');
+    background-size: 100% 90%;
+    background-repeat: no-repeat;
+    margin-top:55px;
+    background-position: center top;
+    padding-top: 20px;
+    padding-bottom: 60px;
+}
+
 .list-page-settings{
 	width: 70%;
     margin-left: 30px;
@@ -420,8 +430,9 @@
     margin-left:42%;
     font-size: 15px;
     color: red;
-    /*padding-bottom: 3px;*/
+    padding-bottom: 3px;
     font-family: serif;
+    font-weight: bold;
 }
 
 .block-jugador-gol{
@@ -449,7 +460,6 @@
 
 .col-jugador-datos-gol{
     text-align: left;
-    padding-right: 160px;
     background: orange;
     border-radius: 5px;
     font-family: serif;
@@ -466,6 +476,68 @@
 }
 
 .col-numgoles-gol{
+    text-align: left;
+    font-size: 40px;
+    padding-top: 9px;
+}
+
+.block-title-tarjetas{
+    margin: 0;
+    margin-left:42%;
+    font-size: 15px;
+    color: red;
+    padding-bottom: 3px;
+    font-family: serif;
+    font-weight: bold;
+}
+
+.block-jugador-tarjeta{
+    width: 100%;
+    margin-top: 0;
+    border: 1px solid black;
+    border-radius: 5px;
+    margin-bottom: 3px;
+}
+
+.list-tarjetas{
+    margin: 0;
+    margin-left: 42%;
+    /*background: yellow;*/
+    text-align: center;
+    margin-right: 1%;
+    
+    /*
+    Esto es para abarcar toda la lista
+    box-shadow: 1px 3px #888888;
+    border: 1px solid black;
+    border-radius: 5px;
+    */
+}
+
+.col-jugador-datos-tarjeta{
+    text-align: left;
+    background: orange;
+    border-radius: 5px;
+    font-family: serif;
+}
+
+.col-icon-tarjeta-amarilla{
+    margin: 0;
+    text-align: right;
+    padding-top: 7px;
+}
+
+.col-icon-tarjeta-roja{
+    margin: 0;
+    text-align: right;
+    padding-top: 9px;
+}
+
+.col-icon-suma-tarjeta{
+    padding-top: 23px;
+}
+
+.col-numtarjeta-amarilla{
     text-align: left;
     font-size: 40px;
     padding-top: 9px;

@@ -18,6 +18,7 @@ var gestatus_juego;
 var gidTorneo = "";
 var gidEquipoVisita = "";
 var gidEquipoLocal = "";
+var gnomEquipoAfectado = "";
 var gidJuego = "";
 var gidJornada = "";
 var glocvis = "";
@@ -107,9 +108,14 @@ var app7 = new Framework7({
         name: 'tablero',
       },
       {
-        path: '/goles/:locVis/:nomEquiLocal',
+        path: '/goles/:locVis/:nomEquipo',
         url: 'views/goles.html',
         name: 'goles',
+      },
+      {
+        path: '/tarjetas/:locVis/:nomEquipo',
+        url: 'views/tarjetas.html',
+        name: 'tarjetas',
       },
     ],
     // ... other parameters
@@ -118,25 +124,24 @@ var app7 = new Framework7({
 
 
 $$(document).on('page:init', '.page[data-name="home"]', function (e){
- // console.log("Iniciada Página Ejemplo");
- //var db = openDatabase('futcho','1.0',"Base de Datos para el uso de la cédula",2 * 1021 * 1024);
  ChecaCuenta();
 });
 
 $$(document).on('page:init', '.page[data-name="settings"]', function (e){
-  // console.log("Iniciada Página Ejemplo");
   ChecaSettings();
  });
 
  $$(document).on('page:init', '.page[data-name="cargar"]', function (e){
-  // console.log("Iniciada Página Ejemplo");
   SetCalendar();
  });
 
  $$(document).on('page:init', '.page[data-name="cedula-seleccionar"]', function (e){
- //alert("Iniciada Página Ejemplo");
   getJuegos();
  });
+
+ $$(document).on('page:reinit', '.page[data-name="tablero"]', function (e){
+  refreshTablero();
+  });
 
  $$(document).on('page:init', '.page[data-name="tablero"]', function (e){
   //En el objeto e, se guardaron los parámetros
@@ -206,16 +211,16 @@ $$(document).on('page:init', '.page[data-name="settings"]', function (e){
           }
           $$('#tab-goles-visita').text(marcador_string);
           //Obtiene T.Amarillas Local
-          getTarjetas(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,"L", function(tarjetasL){
-            //arr = tarjetasL.split("|");
-            //faltas = parseInt(arr[0]);
-            faltas = tarjetasL;
+          getTarjetas(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,"L","", function(tarjetasL){
+            arr = tarjetasL.split("|");
+            faltas = parseInt(arr[0]);
+            //faltas = tarjetasL;
             $$('#tab-faltas-local').text(String(faltas));
             //Obtiene T.Amarillas Visita
-            getTarjetas(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,"V", function(tarjetasV){
-              //arr = tarjetasL.split("|");
-              //faltas = parseInt(arr[0]);
-              faltas = tarjetasV;
+            getTarjetas(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,"V","", function(tarjetasV){
+              arr = tarjetasV.split("|");
+              faltas = parseInt(arr[0]);
+              //faltas = tarjetasV;
               $$('#tab-faltas-visita').text(String(faltas));
             });
           });
@@ -227,26 +232,56 @@ $$(document).on('page:init', '.page[data-name="settings"]', function (e){
 
 
  $$(document).on('page:init', '.page[data-name="goles"]', function (f){
+   //En el objeto e, se guardaron los parámetros
+   const page = f.detail;
+   var locvis = page.route.params.locVis;
+   gnomEquipoAfectado = page.route.params.nomEquipo;
+   if(locvis == 'L'){
+     posicion = 'LOCAL';
+    }else{
+      posicion = 'VISITA';
+    }
+    $$('#titulo-cedula-gol').text("Cédula Arbitral (GOLES "+posicion+")");
+    getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,glocvis,gnomEquipoAfectado,"","", 0, function(resultado){
+      arr = resultado.split("|");
+      marcador = parseInt(arr[0]);
+      if (marcador == 99){
+          marcador_string = "0";
+      }else{
+        marcador_string = String(marcador);
+      }
+      $$('#total-goles').text("TOTAL GOLES "+gnomEquipoAfectado+" "+marcador_string);
+      getJugadoresGoles(locvis);
+    });
+});
+
+$$(document).on('page:init', '.page[data-name="tarjetas"]', function (f){
   //En el objeto e, se guardaron los parámetros
   const page = f.detail;
   var locvis = page.route.params.locVis;
-  var lnombre_local = page.route.params.nomEquiLocal;
+  gnomEquipoAfectado = page.route.params.nomEquipo;
   if(locvis == 'L'){
-    posicion = '(LOCAL): ';
-  }else{
-    posicion = '(VISITA): ';
-  }
-  getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,glocvis,"","","", 0, function(resultado){
-    arr = resultado.split("|");
-    marcador = parseInt(arr[0]);
-    if (marcador == 99){
-        marcador_string = "0";
-    }else{
-      marcador_string = String(marcador);
-    }
-    $$('#total-goles').text("Total de goles para el equipo "+lnombre_local+" "+posicion+marcador_string);
-    getJugadores(locvis);
-    });
+    posicion = 'LOCAL';
+   }else{
+     posicion = 'VISITA';
+   }
+   $$('#titulo-cedula-tarjeta').text("Cédula Arbitral (TARJETAS "+posicion+")");
+   //Obtiene T.Amarillas
+   getTarjetas(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,glocvis,gnomEquipoAfectado, function(tarjetas){
+     arr = tarjetas.split("|");
+     numTarjetas = parseInt(arr[0]);
+     if (numTarjetas == 99){
+         tarjetas_string = "0";
+     }else{
+       tarjetas_string = String(numTarjetas);
+     }
+     getTarjetasRojas(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,glocvis, function(tarjetasr){
+
+      $$('#total-tarjetas').text("TOTAL TARJETAS "+gnomEquipoAfectado+" "+tarjetas_string+", rojas("+String(tarjetasr)+")");
+      getJugadoresTarjetas(locvis);
+
+     });
+   });
 });
  
 
@@ -367,7 +402,7 @@ function cargaDatos(fecha){
       var sucursal= Number(cuentastring.substring(2,4));
       var numjuegos = 0;
       varfecha = fecha; //"2020/07/13";
-      app7.preloader.show("hola");
+      app7.preloader.show();
       app7.request({
         url: 'http://futcho7.com.mx/Cedula/WebService/getrecords.php',
         data:{id_cliente:cliente,id_sucursal:sucursal,fecha:varfecha},
@@ -376,94 +411,94 @@ function cargaDatos(fecha){
         success:function(data){
           var objson = JSON.parse(data);
           if (objson.status == 0){
-            numjuegos = BarreJson(objson,numjuegos);
-          
-            console.log("número de juegos:"+String(numjuegos));
-            //alert(numjuegos);
-            app7.preloader.hide();
-            app7.dialog.alert("El proceso ha concluido, el dispositivo cuenta con "+String(numjuegos)+" juegos, puedes continuar con la elaboración de la cédula arbitral para cada uno de ellos", "Carga de Datos");
-            }else{
+            BarreJson(objson,function(f){
+              console.log("Aqui el resultado");
+              conslose.log(f);
               app7.preloader.hide();
-              app7.dialog.alert("No existen juegos con la fecha proporcionada, revise si hay un error, caso contrario... favor de reportarlo en la oficina de la cancha", "AVISO");
-            }
-            /*console.log(objson);*/
-          },
-            error:function(error){
+              app7.dialog.alert("El proceso ha concluido, el dispositivo cuenta con "+String(f)+" juegos, puedes continuar con la elaboración de la cédula arbitral para cada uno de ellos", "Carga de Datos");
+            });
+          }else{
+            app7.preloader.hide();
+            app7.dialog.alert("No existen juegos con la fecha proporcionada, revise si hay un error, caso contrario... favor de reportarlo en la oficina de la cancha", "AVISO");
           }
+        },
+        error:function(error){
+        }
       });
       app7.preloader.hide();
-    } else{
+    }else{
       /* Si no hay red */
     }
-}
+  }
 
-function BarreJson(objson,numjuegos){
-  app7.preloader.show();
-  var cliente = Number(localStorage.getItem("cuenta").substring(0,2));
-  var sucursal= Number(localStorage.getItem("cuenta").substring(2,4));
-  /*var db = openDatabase('futcho','1.0',"Base de Datos para el uso de la cédula",2 * 1021 * 1024);*/
-  var cedula = objson['Cedula'];
-  console.log(cedula);
-  for (var i=0; i < cedula.length; i++) {
-    
-    /* Se barren los torneos involucrados */
-    var id_torneo = cedula[i].id_torneo;
-    var nombre_torneo = cedula[i].nom_torneo;
-    var cadena = "insert into torneo(id_cliente,id_sucursal,id_torneo,tor_nombre) values('"+String(cliente)+"','"+String(sucursal)+"','"+String(id_torneo)+"','"+nombre_torneo+"')"
-    console.log("Contador cedula "+String(i)+" nombre torneo "+nombre_torneo)
-    insertaReg(cadena,db,function(resultado){
-      //alert(resultado);
-    });
-    var juegos = cedula[i].Partidos;
-    /* Se barren los juegos por torneo */
-    for (var a=0; a < juegos.length; a++){
-      var id_jornada    = juegos[a].id_jornada;
-      var fecha_partido = juegos[a].fecha_partido;
-      var cal_default   = juegos[a].cal_default;
-      var id_juego      = juegos[a].id_juego;
-      var id_arbitro    = juegos[a].id_arbitro;
-      var cal_estatus   = juegos[a].cal_estatus;
-      var cal_penales   = juegos[a].cal_penales;
-      console.log("fecha del juego "+String(a)+" "+String(fecha_partido));
-      /* Se inserta en calendario */
-      cadena = "insert into calendario(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,cal_fecha_hora,id_arbitro,cal_estatus,cal_default,cal_penales) values('"+String(cliente)+"','"+String(sucursal)+"','"+String(id_torneo)+"','"+String(id_jornada)+"','"+String(id_juego)+"','"+String(fecha_partido)+"','"+String(id_arbitro)+"','"+String(cal_estatus)+"','"+String(cal_default)+"','"+String(cal_penales)+"')";
+  function BarreJson(objson,callBack){
+    app7.preloader.show();
+    var cliente = Number(localStorage.getItem("cuenta").substring(0,2));
+    var sucursal= Number(localStorage.getItem("cuenta").substring(2,4));
+    var numeroJuegos = 0;
+    var cedula = objson['Cedula'];
+    console.log(cedula);
+    for (var i=0; i < cedula.length; i++) {
+      
+      /* Se barren los torneos involucrados */
+      var id_torneo = cedula[i].id_torneo;
+      var nombre_torneo = cedula[i].nom_torneo;
+      var cadena = "insert into torneo(id_cliente,id_sucursal,id_torneo,tor_nombre) values('"+String(cliente)+"','"+String(sucursal)+"','"+String(id_torneo)+"','"+nombre_torneo+"')"
+      console.log("Contador cedula "+String(i)+" nombre torneo "+nombre_torneo)
       insertaReg(cadena,db,function(resultado){
         //alert(resultado);
       });
-      var equipos = juegos[a].Equipos;
-      /* Se barren los equipos por juego, torneo */
-      for (var b=0; b < equipos.length; b++){
-        var id_equipo   = equipos[b].id_equipo;
-        var equ_nombre  = equipos[b].nom_equipo;
-        var locvis      = equipos[b].locvis;
-        cadena = "insert into equipo(id_cliente,id_sucursal,id_torneo,id_equipo,equ_nombre) values('"+String(cliente)+"','"+String(sucursal)+"','"+String(id_torneo)+"','"+String(id_equipo)+"','"+String(equ_nombre)+"')";
+      var juegos = cedula[i].Partidos;
+      /* Se barren los juegos por torneo */
+      for (var a=0; a < juegos.length; a++){
+        var id_jornada    = juegos[a].id_jornada;
+        var fecha_partido = juegos[a].fecha_partido;
+        var cal_default   = juegos[a].cal_default;
+        var id_juego      = juegos[a].id_juego;
+        var id_arbitro    = juegos[a].id_arbitro;
+        var cal_estatus   = juegos[a].cal_estatus;
+        var cal_penales   = juegos[a].cal_penales;
+        console.log("fecha del juego "+String(a)+" "+String(fecha_partido));
+        /* Se inserta en calendario */
+        cadena = "insert into calendario(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,cal_fecha_hora,id_arbitro,cal_estatus,cal_default,cal_penales) values('"+String(cliente)+"','"+String(sucursal)+"','"+String(id_torneo)+"','"+String(id_jornada)+"','"+String(id_juego)+"','"+String(fecha_partido)+"','"+String(id_arbitro)+"','"+String(cal_estatus)+"','"+String(cal_default)+"','"+String(cal_penales)+"')";
         insertaReg(cadena,db,function(resultado){
+          numeroJuegos++;
           //alert(resultado);
         });
-        /* Se crea cadena para grabar en la tabla encuentro */
-        cadena = "insert into encuentro(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis) values('"+String(cliente)+"','"+String(sucursal)+"','"+String(id_torneo)+"','"+String(id_jornada)+"','"+String(id_juego)+"','"+String(id_equipo)+"','"+String(locvis)+"')";
-        insertaReg(cadena,db,function(resultado){
-          //alert(resultado);
-        });
-        var jugadores = equipos[b].Jugadores;
-        /* Se barren los jugadores por equipo, juego, torneo */
-        for (var c=0; c < jugadores.length; c++){
-          var id_jugador  = jugadores[c].id_jugador;
-          var jug_nombre  =  jugadores[c].jugador_nom+' '+jugadores[c].jugador_pat+' '+jugadores[c].jugador_mat;
-          var jug_capitan =  jugadores[c].jug_repre;
-          var jug_playera = jugadores[c].jug_playera;
-          var jug_foto    =  jugadores[c].jug_foto;
-          cadena = "insert into jugador(id_cliente,id_sucursal,id_torneo,id_equipo,id_jugador,jug_nombre,jug_representante,jug_playera,jug_foto) values('"+String(cliente)+"','"+String(sucursal)+"','"+String(id_torneo)+"','"+String(id_equipo)+"','"+String(id_jugador)+"','"+jug_nombre+"','"+jug_capitan+"','"+String(jug_playera)+"','"+jug_foto+"')";
-          insertaReg(cadena,db,function(resultado3){
+        var equipos = juegos[a].Equipos;
+        /* Se barren los equipos por juego, torneo */
+        for (var b=0; b < equipos.length; b++){
+          var id_equipo   = equipos[b].id_equipo;
+          var equ_nombre  = equipos[b].nom_equipo;
+          var locvis      = equipos[b].locvis;
+          cadena = "insert into equipo(id_cliente,id_sucursal,id_torneo,id_equipo,equ_nombre) values('"+String(cliente)+"','"+String(sucursal)+"','"+String(id_torneo)+"','"+String(id_equipo)+"','"+String(equ_nombre)+"')";
+          insertaReg(cadena,db,function(resultado1){
             //alert(resultado);
           });
+          /* Se crea cadena para grabar en la tabla encuentro */
+          cadena = "insert into encuentro(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis) values('"+String(cliente)+"','"+String(sucursal)+"','"+String(id_torneo)+"','"+String(id_jornada)+"','"+String(id_juego)+"','"+String(id_equipo)+"','"+String(locvis)+"')";
+          insertaReg(cadena,db,function(resultado2){
+            //alert(resultado);
+          });
+          var jugadores = equipos[b].Jugadores;
+          /* Se barren los jugadores por equipo, juego, torneo */
+          for (var c=0; c < jugadores.length; c++){
+            var id_jugador  = jugadores[c].id_jugador;
+            var jug_nombre  =  jugadores[c].jugador_nom+' '+jugadores[c].jugador_pat+' '+jugadores[c].jugador_mat;
+            var jug_capitan =  jugadores[c].jug_repre;
+            var jug_playera = jugadores[c].jug_playera;
+            var jug_foto    =  jugadores[c].jug_foto;
+            cadena = "insert into jugador(id_cliente,id_sucursal,id_torneo,id_equipo,id_jugador,jug_nombre,jug_representante,jug_playera,jug_foto) values('"+String(cliente)+"','"+String(sucursal)+"','"+String(id_torneo)+"','"+String(id_equipo)+"','"+String(id_jugador)+"','"+jug_nombre+"','"+jug_capitan+"','"+String(jug_playera)+"','"+jug_foto+"')";
+            insertaReg(cadena,db,function(resultado3){
+              //alert(resultado);
+            });
+          }
         }
       }
     }
+    app7.preloader.hide();
+    callBack(numeroJuegos);
   }
-  app7.preloader.hide();
-  return numjuegos;
-}
 
 function goTo(ruta){
   console.log("si ingresa a goTo "+ruta);
@@ -547,6 +582,9 @@ function getJuegos(){
    
     tx.executeSql(sql,[],function callback(tx,results){
       var registros = results.rows.length, i;
+      if(registros == 0){
+        app7.dialog.alert("No existen encuentros en el dispositivo, favor ir al menú y seleccionar la opción de 'Cargar Juegos'", "AVISO");
+      }
       for(i=0; i<registros; i++){
         // Determinar si el contador es impar o no, si es par, el recordSet corresponde a un equipo LOCAL, caso contrario es Visita y
         // solo tomar el registro de nombre de quipo
@@ -655,23 +693,24 @@ function getMarcadores(cliente,sucursal,torneo,jornada,juego,locvis,nombre_equip
   });
 }
 
-function getTarjetas(cliente,sucursal,torneo,jornada,juego,locvis,callBack){
+function getTarjetas(cliente,sucursal,torneo,jornada,juego,locvis,nomEquipoAfectado,callBack){
   //Obtiene número de faltas según los parámetros recibidos
   db.transaction(function (tx){
-    var select= 'SELECT SUM(detalle_encuentro.denc_amarilla) as tar_amarilla ';
+    var select= 'SELECT SUM(CAST(detalle_encuentro.denc_amarilla AS INTEGER)) tar_amarilla ';
     var from  = 'FROM detalle_encuentro, encuentro ';
     var where = 'WHERE detalle_encuentro.id_cliente = encuentro.id_cliente and detalle_encuentro.id_sucursal = encuentro.id_sucursal and detalle_encuentro.id_torneo   = encuentro.id_torneo and detalle_encuentro.id_jornada = encuentro.id_jornada and detalle_encuentro.id_juego = encuentro.id_juego and detalle_encuentro.id_equipo = encuentro.id_equipo and '
-    var where2= '( ( encuentro.id_cliente = '+String(cliente)+' ) AND ( encuentro.id_sucursal = '+String(sucursal)+' ) AND ( encuentro.id_torneo = '+String(torneo)+' ) AND ( encuentro.id_jornada = '+String(jornada)+' ) AND ( encuentro.id_juego = '+String(juego)+' ) ) and encuentro.enc_locvis = '+"'"+locvis+"'";
+    var where2= "( ( encuentro.id_cliente = '"+String(cliente)+"' ) AND ( encuentro.id_sucursal = '"+String(sucursal)+"' ) AND ( encuentro.id_torneo = '"+String(torneo)+"' ) AND ( encuentro.id_jornada = '"+String(jornada)+"' ) AND ( encuentro.id_juego = '"+String(juego)+"' ) ) and encuentro.enc_locvis = '"+locvis+"'";
     var sql   = select+from+where+where2;
+
     tx.executeSql(sql,[],function callback(tx,results){
-      var registros = results.rows.length, i;
-      for(w=0; w<registros; w++){
+      var registros2 = results.rows.length, i;
+      for(w=0; w<registros2; w++){
         amarillas = results.rows.item(w).tar_amarilla;
         if (amarillas == null){
           amarillas = 0;
         }
       }
-      callBack(amarillas);
+      callBack(amarillas+"|"+nomEquipoAfectado);
     },function(err){
       console.log(err);
       notificacion("AVISO","No fue posible obtener tar. amarillas,favor de avisar a la oficina");
@@ -690,13 +729,16 @@ function getDatosJuego(contador){
 }
 
 /* Cuando se le da tap(click) en el Tablero a los goles LOCALES */
-function golLocal(){
-  var locVis = 'L'
-  var nomEquiLocal = "";
-  glocvis = 'L';
-  nomEquiLocal = $$("#tab-nom-equ-local").text(); 
-  //mainView.router.navigate(`/goles/${locVis}/`,{animate:true});
-  mainView.router.navigate(`/goles/${locVis}/${nomEquiLocal}/`,{animate:true});
+function gol(tipo){
+  var locVis = tipo;
+  var nomEquipo = "";
+  glocvis = tipo;
+  if(tipo == 'L'){
+    nomEquipo = $$("#tab-nom-equ-local").text(); 
+  }else{
+    nomEquipo = $$("#tab-nom-equ-visita").text(); 
+  }
+  mainView.router.navigate(`/goles/${locVis}/${nomEquipo}/`,{animate:true});
 }
 
 function getIdtorneo(nomTorneo, callBack){
@@ -733,15 +775,16 @@ function getEquipos(fecha,jornada,id_torneo,callBack){
       var registros = results.rows.length, i;
       for(z=0; z<registros; z++){
         if (results.rows.item(z).enc_locvis == 'L'){
-          idEquipo_local = results.rows.item(z).id_equipo;
+          idEquipo_local  = results.rows.item(z).id_equipo;
           nomEquipo_local = results.rows.item(z).equ_nombre;
         }else{
-          idEquipo_vista = results.rows.item(z).id_equipo;
-          nomEquipo_visita = results.rows.item(z).equ_nombre;
+          idEquipo_vista    = results.rows.item(z).id_equipo;
+          a = results.rows.item(z).id_equipo;
+          nomEquipo_visita  = results.rows.item(z).equ_nombre;
         }
         idJuego = results.rows.item(z).id_juego;
       }
-      callBack(idEquipo_local+"|"+nomEquipo_local+"|"+idEquipo_visita+"|"+nomEquipo_visita+"|"+idJuego);
+      callBack(idEquipo_local+"|"+nomEquipo_local+"|"+a+"|"+nomEquipo_visita+"|"+idJuego);
     },function(err){
       console.log(err);
       notificacion("AVISO","No fue posible obtener los datos de los equipo involucrados,favor de avisar a la oficina");
@@ -749,7 +792,7 @@ function getEquipos(fecha,jornada,id_torneo,callBack){
   });
 }
 
-function getJugadores(locvis){
+function getJugadoresGoles(locvis){
   if(locvis == 'L'){
     idEquipo = gidEquipoLocal;
   }else{
@@ -768,16 +811,18 @@ function getJugadores(locvis){
       var id_jugador = "";
       var jugador = "";
       var goles = 0;
+      var foto = "";
       for(ii=0; ii<regjugador; ii++){
         id_jugador = results.rows.item(ii).id_jugador;
         jugador = "# "+results.rows.item(ii).jug_playera+" "+results.rows.item(ii).jug_nombre;
+        foto = results.rows.item(ii).jug_foto;
         goles = results.rows.item(ii).goles
         if (goles == null){
           goles = 0;
         }
-        cadena = '<div class="block block-jugador-gol"><div class="row"><div class="col col-jugador-datos-gol" id="jugador-id-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto"><img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" width="60"/></div><div class="col col-icon-suma-gol" id="suma-gol" onclick = "insertaGol('+id_jugador+')"><img src="../img/plus-circle.png"/></div><div class="col col-icon-balon-gol" id="ico-balon"><img src="../img/Balon.ico" width="60"/></div><div class="col col-numgoles-gol" id="goles-'+id_jugador+'">'+String(goles)+'</div><div class="col col-icon-suma-gol" id="resta-gol" onclick = "eliminaGol('+id_jugador+')"><img src="../img/minus-circle.png"/></div></div></div>';
+        //cadena = '<div class="block block-jugador-gol"><div class="row"><div class="col col-jugador-datos-gol" id="jugador-id-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto"><img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" width="60"/></div><div class="col col-icon-suma-gol" id="suma-gol" onclick = "insertaGol('+id_jugador+')"><img src="../img/plus-circle.png"/></div><div class="col col-icon-balon-gol" id="ico-balon"><img src="../img/Balon.ico" width="60"/></div><div class="col col-numgoles-gol" id="goles-'+id_jugador+'">'+String(goles)+'</div><div class="col col-icon-suma-gol" id="resta-gol" onclick = "eliminaGol('+id_jugador+')"><img src="../img/minus-circle.png"/></div></div></div>';
+        cadena = '<div class="block block-jugador-gol"><div class="row"><div class="col col-jugador-datos-gol" id="jugador-id-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto"><img src="data:image/png;base64, '+foto+'" width="60"/></div><div class="col col-icon-suma-gol" id="suma-gol" onclick = "insertaGol('+id_jugador+')"><img src="../img/plus-circle.png"/></div><div class="col col-icon-balon-gol" id="ico-balon"><img src="../img/Balon.ico" width="60"/></div><div class="col col-numgoles-gol" id="goles-'+id_jugador+'">'+String(goles)+'</div><div class="col col-icon-suma-gol" id="resta-gol" onclick = "eliminaGol('+id_jugador+')"><img src="../img/minus-circle.png"/></div></div></div>';
         $$('#lista-jugadores').append(cadena);
-        //alert(cadena);
       }
       
     });
@@ -791,19 +836,17 @@ function insertaGol(idJugador){
   }else{
     equipo = gidEquipoVisita;
   }
-  /* Se obtiene el total de registros en detalle_encuentro para asignarlo en la columna denc_minuto */
-  cadena = "SELECT COUNT(*)+1 tot_registros FROM detalle_encuentro";
-  ejecutaQuery(cadena,db,"numRegistros",function(totRegistros){
-    /* Se inserta el jugador en la tabla detalle_encuentro */
-    cadena = "insert into detalle_encuentro(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_minuto,denc_gol,denc_roja,denc_amarilla) values('"+String(gcliente)+"','"+String(gsucursal)+"','"+gidTorneo+"','"+gidJornada+"','"+gidJuego+"','"+equipo+"','"+glocvis+"','"+idJugador+"',"+totRegistros+",1,0,0)";
-    //alert(cadena);
-    insertaReg(cadena,db,function(resultado){
-      if(resultado == 'INSERTADO'){
-        totGoles = $$('#goles-'+idJugador).text();
-        totGoles++;
-        $$('#goles-'+String(idJugador)).text(String(totGoles));
-      }
-    });
+  /* Se inserta el jugador en la tabla detalle_encuentro */
+  //cadena = "insert into detalle_encuentro(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_minuto,denc_gol,denc_roja,denc_amarilla) values('"+String(gcliente)+"','"+String(gsucursal)+"','"+gidTorneo+"','"+gidJornada+"','"+gidJuego+"','"+equipo+"','"+glocvis+"','"+idJugador+"',"+totRegistros+",1,0,0)";
+  cadena = "insert into detalle_encuentro(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_gol,denc_roja,denc_amarilla) values('"+String(gcliente)+"','"+String(gsucursal)+"','"+gidTorneo+"','"+gidJornada+"','"+gidJuego+"','"+equipo+"','"+glocvis+"','"+idJugador+"',1,0,0)";
+  insertaReg(cadena,db,function(resultado){
+    if(resultado == 'INSERTADO'){
+      totGoles = $$('#goles-'+idJugador).text();
+      totGoles++;
+      $$('#goles-'+String(idJugador)).text(String(totGoles));
+      // Actualiza el titúlo con el total de goles
+      refreshTotGoles(glocvis);
+    }
   });
 }
 
@@ -816,11 +859,9 @@ function eliminaGol(idJugador){
   }
   /* Se obtiene el max(denc_minuto) del jugador en question, esto para poder eliminar SOLO 1 registro */
   cadena = "SELECT MAX(CAST(denc_minuto AS INTEGER)) maximo FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+equipo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_gol = 1";
-  //alert(cadena);
   ejecutaQuery(cadena,db,"maxMinuto",function(maxMinuto){
     /* Se elimina el jugador en la tabla detalle_encuentro */
     cadena = "DELETE FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+equipo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_minuto = "+String(maxMinuto)+" AND denc_gol = 1";
- 
     eliminaReg(cadena,db,function(resultado){
       if(resultado == 'ELIMINADO'){
         totGoles = $$('#goles-'+idJugador).text();
@@ -829,15 +870,243 @@ function eliminaGol(idJugador){
           totGoles = 0;
         }
         $$('#goles-'+String(idJugador)).text(String(totGoles));
+        // Actualiza el titúlo con el total de goles
+        refreshTotGoles(glocvis);
       }
     });
   });
 }
 
+function refreshTablero(){
+   //Obtiene Marcador Local
+   getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,"L","","","",0, function(golesL){
+    arr = golesL.split("|");
+    marcador = parseInt(arr[0]);
+    if (marcador == 99){
+        marcador_string = "0";
+    }else{
+      marcador_string = String(marcador);
+    }
+    $$('#tab-goles-local').text(marcador_string);
+    //Obtiene Marcador Visita
+    getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,"V","","","",0, function(golesV){
+      arr = golesV.split("|");
+      marcador = parseInt(arr[0]);
+      if (marcador == 99){
+        marcador_string = "0";
+      }else{
+        marcador_string = String(marcador);
+      }
+      $$('#tab-goles-visita').text(marcador_string);
+      //Obtiene T.Amarillas Local
+      getTarjetas(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,"L","", function(tarjetasL){
+        arr = tarjetasL.split("|");
+        faltas = parseInt(arr[0]);
+        //faltas = tarjetasL;
+        $$('#tab-faltas-local').text(String(faltas));
+        //Obtiene T.Amarillas Visita
+        getTarjetas(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,"V","", function(tarjetasV){
+          arr = tarjetasV.split("|");
+          faltas = parseInt(arr[0]);
+          //faltas = tarjetasV;
+          $$('#tab-faltas-visita').text(String(faltas));
+        });
+      });
+    });
+  });
+}
 
+function refreshTotGoles(enclocvis){
+  getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,enclocvis,"","","",0, function(golesR){
+    arr = golesR.split("|");
+    marcador = parseInt(arr[0]);
+    if (marcador == 99){
+        marcador_string = "0";
+    }else{
+      marcador_string = String(marcador);
+    }
+    $$('#total-goles').text("TOTAL GOLES "+gnomEquipoAfectado+" "+marcador_string);
+  });
+}
 
+/* Cuando se le da tap(click) en el Tablero a las tarjetas LOCALES */
+function tarjeta(tipo){
+  var locVis = tipo;
+  var nomEquipo = "";
+  glocvis = tipo;
+  if(tipo == 'L'){
+    nomEquipo = $$("#tab-nom-equ-local").text(); 
+  }else{
+    nomEquipo = $$("#tab-nom-equ-visita").text(); 
+  }
+  mainView.router.navigate(`/tarjetas/${locVis}/${nomEquipo}/`,{animate:true});
+}
 
+/* Obtiene total de tarjetas amarillas/rojas */
+function getJugadoresTarjetas(locvis){
+  if(locvis == 'L'){
+    idEquipo = gidEquipoLocal;
+  }else{
+    idEquipo = gidEquipoVisita;
+  }
+  //Borra contenido de lista-jugadores
+  $$('#lista-jugadores-tarjetas').html("");
+  db.transaction(function (tx){
+    var select  = "SELECT jugador.id_jugador,jugador.jug_playera, jugador.jug_nombre, jugador.jug_representante, jugador.jug_foto, (SELECT SUM(detalle_encuentro.denc_amarilla) FROM detalle_encuentro WHERE detalle_encuentro.id_cliente = jugador.id_cliente and detalle_encuentro.id_sucursal = jugador.id_sucursal and detalle_encuentro.id_torneo = jugador.id_torneo and detalle_encuentro.id_jornada = '"+gidJornada+"' and detalle_encuentro.id_juego = '"+gidJuego+"' and detalle_encuentro.id_equipo = jugador.id_equipo and detalle_encuentro.enc_locvis = '"+locvis+"' and detalle_encuentro.id_jugador = jugador.id_jugador) as amarillas, ";
+    var select2 = "(SELECT SUM(detalle_encuentro.denc_roja) FROM detalle_encuentro WHERE detalle_encuentro.id_cliente = jugador.id_cliente and detalle_encuentro.id_sucursal = jugador.id_sucursal and detalle_encuentro.id_torneo = jugador.id_torneo and detalle_encuentro.id_jornada = '"+gidJornada+"' and detalle_encuentro.id_juego = '"+gidJuego+"' and detalle_encuentro.id_equipo = jugador.id_equipo and detalle_encuentro.enc_locvis = '"+locvis+"' and detalle_encuentro.id_jugador = jugador.id_jugador) as rojas "
+    var from    = 'FROM jugador ';
+    var where   = "WHERE jugador.id_cliente = '"+gcliente+"' and jugador.id_sucursal = '"+gsucursal+"' and jugador.id_torneo = '"+gidTorneo+"' and jugador.id_equipo = '"+idEquipo+"' ";
+    var order   = 'ORDER BY CAST(jugador.jug_playera AS INTEGER)';   
+    var sql     = select + select2 + from + where + order;
 
+    tx.executeSql(sql,[],function callback(tx,results){
+      var regjugador = results.rows.length, i;
+      var id_jugador = "";
+      var jugador = "";
+      var amarillas = 0;
+      var foto2 = "";
+      var rojas = 0;
+      for(ii=0; ii<regjugador; ii++){
+        id_jugador = results.rows.item(ii).id_jugador;
+        jugador = "# "+results.rows.item(ii).jug_playera+" "+results.rows.item(ii).jug_nombre;
+        amarillas = results.rows.item(ii).amarillas;
+        rojas = results.rows.item(ii).rojas;
+        foto2 =  results.rows.item(ii).jug_foto;
+        if (amarillas == null){
+          amarillas = 0;
+        }
+        if (rojas == null){
+          rojas = 0;
+        }
+        if (rojas > 0){
+          //El jugador tiene tarjeta roja, se muestra el ico correspondiente a la tarjeta roja
+          cadena = '<div class="block block-jugador-tarjeta"><div class="row"><div class="col col-jugador-datos-tarjeta" id="jugador-id-tarjeta-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto-tarjeta"><img src="data:image/png;base64, '+foto2+'" width="60"/></div><div class="col col-icon-tarjeta-amarilla" id="ico-tarjeta-amarilla"><img src="../img/tarjeta_amarilla.png" width="60"/></div><div class="col col-numtarjeta-amarilla" id="tarjetas-amarillas-'+id_jugador+'">'+String(amarillas)+'</div><div class="col col-icon-suma-tarjeta" id="suma-tarjeta" onclick = "insertaTarjeta('+id_jugador+')"><img src="../img/plus-circle.png"/></div><div class="col col-icon-suma-tarjeta" id="resta-amarilla" onclick = "eliminaTarjeta('+id_jugador+')"><img src="../img/minus-circle.png"/></div><div class="col col-icon-tarjeta-roja" id="ico-tarjeta-roja-'+id_jugador+'" onclick = "tarjetaRoja('+id_jugador+')"><img src="../img/tarjeta_roja.png" width="60"/></div></div></div>';
+        }else{
+          //El jugador no tiene rojas, se muestra el ico correspondiente a la tarjeta bca.
+          cadena = '<div class="block block-jugador-tarjeta"><div class="row"><div class="col col-jugador-datos-tarjeta" id="jugador-id-tarjeta-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto-tarjeta"><img src="data:image/png;base64, '+foto2+'" width="60"/></div><div class="col col-icon-tarjeta-amarilla" id="ico-tarjeta-amarilla"><img src="../img/tarjeta_amarilla.png" width="60"/></div><div class="col col-numtarjeta-amarilla" id="tarjetas-amarillas-'+id_jugador+'">'+String(amarillas)+'</div><div class="col col-icon-suma-tarjeta" id="suma-tarjeta" onclick = "insertaTarjeta('+id_jugador+')"><img src="../img/plus-circle.png"/></div><div class="col col-icon-suma-tarjeta" id="resta-amarilla" onclick = "eliminaTarjeta('+id_jugador+')"><img src="../img/minus-circle.png"/></div><div class="col col-icon-tarjeta-roja" id="ico-tarjeta-roja-'+id_jugador+'" onclick = "tarjetaRoja('+id_jugador+')"><img src="../img/tarjeta_bco.png" width="55"/></div></div></div>';
+        }
+        //alert(cadena);
+        $$('#lista-jugadores-tarjetas').append(cadena);
+      }
+      
+    });
+  });
+}
+
+function insertaTarjeta(idJugador){
+  var totTarjetas = 0;
+  if (glocvis == 'L'){
+    equipo = gidEquipoLocal;
+  }else{
+    equipo = gidEquipoVisita;
+  }
+  /* Se inserta el jugador en la tabla detalle_encuentro */
+  cadena = "insert into detalle_encuentro(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_gol,denc_roja,denc_amarilla) values('"+String(gcliente)+"','"+String(gsucursal)+"','"+gidTorneo+"','"+gidJornada+"','"+gidJuego+"','"+equipo+"','"+glocvis+"','"+idJugador+"',0,0,1)";
+  insertaReg(cadena,db,function(resultado){
+    if(resultado == 'INSERTADO'){
+      totTarjetas = $$('#tarjetas-amarillas-'+idJugador).text();
+      totTarjetas++;
+      $$('#tarjetas-amarillas-'+String(idJugador)).text(String(totTarjetas));
+      // Actualiza el titúlo con el total de goles
+      refreshTotTarjetas(glocvis);
+    }
+  });
+}
+
+function refreshTotTarjetas(enclocvis){
+  getTarjetas(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,enclocvis,"", function(tarjetasR){
+    arr = tarjetasR.split("|");
+    marcador = parseInt(arr[0]);
+    if (marcador == 99){
+        marcador_string = "0";
+    }else{
+      marcador_string = String(marcador);
+    }
+    getTarjetasRojas(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,glocvis, function(tarjetasr){
+      $$('#total-tarjetas').text("TOTAL TARJETAS "+gnomEquipoAfectado+" "+marcador_string+", rojas("+String(tarjetasr)+")");
+    });
+  });
+}
+
+function eliminaTarjeta(idJugador){
+  var totTarjetas = 0;
+  if (glocvis == 'L'){
+    equipo = gidEquipoLocal;
+  }else{
+    equipo = gidEquipoVisita;
+  }
+  /* Se obtiene el max(denc_minuto) del jugador en question, esto para poder eliminar SOLO 1 registro */
+  cadena = "SELECT MAX(CAST(denc_minuto AS INTEGER)) maximo FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+equipo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_amarilla = 1";
+  ejecutaQuery(cadena,db,"maxMinuto",function(maxMinuto){
+    /* Se elimina el jugador en la tabla detalle_encuentro */
+    cadena = "DELETE FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+equipo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_minuto = "+String(maxMinuto)+" AND denc_amarilla = 1";
+ 
+    eliminaReg(cadena,db,function(resultado){
+      if(resultado == 'ELIMINADO'){
+        /* Se actualiza en la vista la cantidad de tarjetas del jugador*/
+        totAmarillas = $$('#tarjetas-amarillas-'+idJugador).text();
+        totAmarillas--;
+        if (totAmarillas < 0){
+          totAmarillas = 0;
+        }
+        $$('#tarjetas-amarillas-'+String(idJugador)).text(String(totAmarillas));
+        // Actualiza el titúlo con el total de goles
+        refreshTotTarjetas(glocvis);
+      }
+    });
+  });
+}
+
+function tarjetaRoja(idJugador){
+  /* Se obtiene el total de tarjetas rojas que tiene el jugador en cuestio, si el jugador tiene tarjeta roja
+     se procede a eliminar dicha tarjeta y cambia el ico por tarjeta bco, caso contrario que el jugador no tenga
+     tarjeta roja, se inserta roja y se cambia el ico a roja */
+    if (glocvis == 'L'){
+      idequipoinvo = gidEquipoLocal;
+    }else{
+      idequipoinvo = gidEquipoVisita;
+    }
+  cadena = "SELECT COUNT(*) tot_registros FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+String(gidTorneo)+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+idequipoinvo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_roja = 1";
+  //Se valida si el jugador tiene tarjeta roja o no */
+  ejecutaQuery(cadena,db,"numRegistros",function(totRegistros){
+    if(totRegistros > 0){
+      /* Si hay roja, se procede a eliminar y cambiar el ico por bco. */
+      cadena = "DELETE FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+idequipoinvo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_roja = 1";
+      eliminaReg(cadena,db,function(resultado){
+        if(resultado == 'ELIMINADO'){
+          /* Se cambia el ico por bco.*/
+          $$('#ico-tarjeta-roja-'+String(idJugador)).attr('src','../img/tarjeta_bco.png');
+        }
+      });
+    }else{
+      /* No existe tarjeta roja para el jugador en cuestión, se inserta una y se cambia el ico por tarjeta roja */
+      cadena = "insert into detalle_encuentro(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_gol,denc_roja,denc_amarilla) values('"+String(gcliente)+"','"+String(gsucursal)+"','"+gidTorneo+"','"+gidJornada+"','"+gidJuego+"','"+idequipoinvo+"','"+glocvis+"','"+idJugador+"',0,1,0)";
+      insertaReg(cadena,db,function(resultado2){
+        if(resultado2 == 'INSERTADO'){
+            /* Se cambia el ico por roja*/
+          $$('#ico-tarjeta-roja-'+String(idJugador)).attr('src','../img/tarjeta_roja.png');
+        }
+      });
+    }
+    refreshTotTarjetas(glocvis);
+  });
+}
+
+function getTarjetasRojas(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,glocvis, callBack){
+  /* Se obtiene total de tarjetas rojas por equipo */
+  if(glocvis == 'L'){
+    idequipoinvo = gidEquipoLocal;
+  }else{
+    idequipoinvo = gidEquipoVisita;
+  }
+  cadena = "SELECT COUNT(*) tot_registros FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+String(gidTorneo)+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+idequipoinvo+"' AND enc_locvis = '"+glocvis+"' AND denc_roja = 1";
+  //Se valida si el equipo tiene tarjetas roja o no */
+  ejecutaQuery(cadena,db,"numRegistros",function(totRegistros){
+    callBack(totRegistros);
+  });
+}
+
+ 
 /*
 function numJuegos(){
   var i = 0;
@@ -862,6 +1131,57 @@ function numJuegos(){
  function CreaDb(){
    console.log("Entró a crear BD");
    /*var db = openDatabase('futcho','1.0',"Base de Datos para el uso de la cédula",2 * 1021 * 1024);*/
+
+   /* Elimina Tablas */
+   db.transaction(function (tx){
+    tx.executeSql('DROP TABLE torneo');
+   },function(err){
+     console.log(err);
+     notificacion("AVISO","La tabla torneo no pudo ser eliminada,favor de avisar a la oficina");
+   });
+
+   db.transaction(function (tx){
+    tx.executeSql('DROP TABLE equipo');
+   },function(err){
+     console.log(err);
+     notificacion("AVISO","La tabla equipo no pudo ser eliminada,favor de avisar a la oficina");
+   });
+
+   db.transaction(function (tx){
+    tx.executeSql('DROP TABLE jugador');
+   },function(err){
+     console.log(err);
+     notificacion("AVISO","La tabla jugador no pudo ser eliminada,favor de avisar a la oficina");
+   });
+
+   db.transaction(function (tx){
+    tx.executeSql('DROP TABLE arbitro');
+   },function(err){
+     console.log(err);
+     notificacion("AVISO","La tabla arbitro no pudo ser eliminada,favor de avisar a la oficina");
+   });
+
+   db.transaction(function (tx){
+    tx.executeSql('DROP TABLE calendario');
+   },function(err){
+     console.log(err);
+     notificacion("AVISO","La tabla calendario no pudo ser eliminada,favor de avisar a la oficina");
+   });
+
+   db.transaction(function (tx){
+    tx.executeSql('DROP TABLE encuentro');
+   },function(err){
+     console.log(err);
+     notificacion("AVISO","La tabla encuentro no pudo ser eliminada,favor de avisar a la oficina");
+   });
+
+   db.transaction(function (tx){
+    tx.executeSql('DROP TABLE detalle_encuentro');
+   },function(err){
+     console.log(err);
+     notificacion("AVISO","La tabla detalle_encuentro no pudo ser eliminada,favor de avisar a la oficina");
+   });
+
 
    db.transaction(function (tx){
      tx.executeSql('CREATE TABLE IF NOT EXISTS torneo (id_cliente,id_sucursal,id_torneo,tor_nombre)');
@@ -906,7 +1226,7 @@ function numJuegos(){
      });
 
      db.transaction(function (tx){
-      tx.executeSql('CREATE TABLE IF NOT EXISTS detalle_encuentro (id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_minuto,denc_gol,denc_roja,denc_amarilla)');
+      tx.executeSql('CREATE TABLE IF NOT EXISTS detalle_encuentro (id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_minuto INTEGER PRIMARY KEY AUTOINCREMENT,denc_gol,denc_roja,denc_amarilla)');
      },function(err){
        console.log(err);
        notificacion("AVISO","La tabla detalle_encuentro no pudo ser creada,favor de avisar a la oficina");
@@ -966,8 +1286,17 @@ function numJuegos(){
   });
  }
 
+ function insertaRegJson(cadena,db,contador,arreglo,callBack){
+  db.transaction(function (tx){
+    tx.executeSql(cadena);
+    callBack(contador+"|"+arreglo);
+   },function (err){
+      console.log(err);
+      notificacion("AVISO","No fue posible insertar en la BD cuando se bare Json,favor de avisar a la oficina");
+ });
+}
+
  function insertaReg(cadena,db,callBack){
-   var accion = ""
    console.log(cadena);
    db.transaction(function (tx){
      tx.executeSql(cadena);
@@ -995,6 +1324,7 @@ function ejecutaQuery(cadena,db,resultado,callBack){
   db.transaction(function (tx){
     tx.executeSql(cadena,[],function callback(tx,results){
       var registros = results.rows.length, i;
+      cuantosRegistros = 0;
       for(z=0; z<registros; z++){
         switch(resultado){
           case 'maxMinuto':
