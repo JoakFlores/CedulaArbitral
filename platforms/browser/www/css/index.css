@@ -119,8 +119,8 @@
 }
 
 .block-botones-pagina-settings{
-    width: 70%;
-    margin-left: 60px;
+    width: 30%;
+    margin-left: 35%;
 }
 
 /* Texto del NavBar "Inicio" */
@@ -325,11 +325,6 @@
 
 .col-tablero-equipos{
     color:white;
-    /*
-    border-color: white;
-    border: 1.0px;
-    border-style: solid;
-    */
 }
 
 .row-tablero-cronometro{
@@ -541,6 +536,31 @@
     text-align: left;
     font-size: 40px;
     padding-top: 9px;
+}
+
+.block-show-cedula{
+    margin-top: 3px;
+    margin-bottom: 0;
+}
+
+.col-show-cedula-equipo-local{
+    color:red;
+    padding-top: 10px;
+}
+
+.col-encabezados-tabla{
+    color:white;
+    font-weight: bold;
+    background: #288838;
+}
+
+.col-titulo-tabla{
+    color:white;
+}
+
+.block-botones-pagina-show-cedula{
+    width: 30%;
+    margin-left: 35%;
 }
 
 body {

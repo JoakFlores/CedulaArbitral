@@ -1,12 +1,19 @@
 var $$ = Dom7;
 
 var db = openDatabase('futcho','1.0',"Base de Datos para el uso de la cédula",2 * 1021 * 1024);
-
 /*
-var gcuenta = localStorage.getItem("cuenta");
-var gcliente = Number(gcuenta.substring(0,2));
-var gsucursal= Number(gcuenta.substring(2,4));
+const fs = require('fs')
+const request = require('request')
+
+const download = (url, path, callback) => {
+  request.head(url, (err, res, body) => {
+    request(url)
+      .pipe(fs.createWriteStream(path))
+      .on('close', callback)
+  })
+}
 */
+
 
 var gcuenta = "";
 var gcliente = 0
@@ -22,6 +29,10 @@ var gnomEquipoAfectado = "";
 var gidJuego = "";
 var gidJornada = "";
 var glocvis = "";
+var gfechaHoraJuego = "";
+var gnomTorneo = "";
+var gnomEquipoLocal = "";
+var gnomEquipoVisita = "";
 
 
 
@@ -91,10 +102,6 @@ var app7 = new Framework7({
         url: 'views/cargar.html',
       },
       {
-        path: '/cargar-confirma/',
-        url: 'views/cargar_confirma.html',
-      },
-      {
         path: '/settings/',
         url: 'views/settings.html',
       },
@@ -117,6 +124,11 @@ var app7 = new Framework7({
         url: 'views/tarjetas.html',
         name: 'tarjetas',
       },
+      {
+        path: '/show-cedula/',
+        url: 'views/show-cedula.html',
+      },
+      
     ],
     // ... other parameters
   });
@@ -156,6 +168,7 @@ $$(document).on('page:init', '.page[data-name="settings"]', function (e){
   const page = e.detail;
 
   var fecha = page.route.params.fechaJuego;
+  gfechaHoraJuego = fecha;
   //Se formatea el String de la fecha en yyyy-mm-dd hh:mm
   posDia = fecha.indexOf("-");
   dia = fecha.substring(0,posDia);
@@ -172,6 +185,7 @@ $$(document).on('page:init', '.page[data-name="settings"]', function (e){
   fecha_formatted = yy+"-"+mes+"-"+dia+" "+horas;
 
   var torneo = page.route.params.nomTorneo;
+  gnomTorneo = torneo;
   var jornada = page.route.params.idJornada;
   gidJornada = jornada.substring(jornada.indexOf("-")+1,10);
   var nom_equipo_local = "";
@@ -184,14 +198,16 @@ $$(document).on('page:init', '.page[data-name="settings"]', function (e){
       arr = infoEquipos.split("|");
       gidEquipoLocal = arr[0];
       nom_equipo_local = arr[1];
+      gnomEquipoLocal = nom_equipo_local;
       gidEquipoVisita = arr[2];
       nom_equipo_visita = arr[3];
+      gnomEquipoVisita = nom_equipo_visita;
       gidJuego = arr[4];
       //Escribe el nombre de los equipos
       $$('#tab-nom-equ-local').text(nom_equipo_local);
       $$('#tab-nom-equ-visita').text(nom_equipo_visita);
       //Obtiene Marcador Local
-      getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,"L","","","",0, function(golesL){
+      getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,"L","","","",0,"", function(golesL){
         arr = golesL.split("|");
         marcador = parseInt(arr[0]);
         if (marcador == 99){
@@ -201,7 +217,7 @@ $$(document).on('page:init', '.page[data-name="settings"]', function (e){
         }
         $$('#tab-goles-local').text(marcador_string);
         //Obtiene Marcador Visita
-        getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,"V","","","",0, function(golesV){
+        getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,"V","","","",0,"", function(golesV){
           arr = golesV.split("|");
           marcador = parseInt(arr[0]);
           if (marcador == 99){
@@ -242,7 +258,7 @@ $$(document).on('page:init', '.page[data-name="settings"]', function (e){
       posicion = 'VISITA';
     }
     $$('#titulo-cedula-gol').text("Cédula Arbitral (GOLES "+posicion+")");
-    getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,glocvis,gnomEquipoAfectado,"","", 0, function(resultado){
+    getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,glocvis,gnomEquipoAfectado,"","", 0,"", function(resultado){
       arr = resultado.split("|");
       marcador = parseInt(arr[0]);
       if (marcador == 99){
@@ -283,6 +299,18 @@ $$(document).on('page:init', '.page[data-name="tarjetas"]', function (f){
      });
    });
 });
+
+$$(document).on('page:init', '.page[data-name="show-cedula"]', function (f){
+  
+  getDatosJuegoCedula(function(d){
+    getJugadoresCedula('L', function (f){
+      getJugadoresCedula('V', function(e){
+  
+      });
+    });
+  });
+});
+
  
 
 /*
@@ -371,13 +399,23 @@ function configuraCuenta(){
             localStorage.setItem("nomSucursal",nomSucursal);
             localStorage.setItem("minutos",minutos);
             localStorage.setItem("periodos",periodos);
+
+            /*
+            var url = 'http://futcho7.com.mx/Cedula/Imagenes/logocte'+String(cliente)+'.jpg'
+            var path = '../img/logocte'+String(cliente)+'.jpg'
+            download(url, path, () => {
+              console.log('✅ Done!')
+
+              
+            })
+            */
             app7.dialog.alert(nomCliente+" sede: "+nomSucursal+", la configuración fue exitosa", "AVISO");
-            }else{
-              app7.dialog.alert("La cuenta no existe, revise si hay un error, caso contrario... favor de reportarlo en la oficina de la cancha", "AVISO");
-            }
-            console.log(objson);
-          },
-            error:function(error){
+          }else{
+            app7.dialog.alert("La cuenta no existe, revise si hay un error, caso contrario... favor de reportarlo en la oficina de la cancha", "AVISO");
+          }
+          console.log(objson);
+        },
+          error:function(error){
           }
       });
       app7.preloader.hide();
@@ -500,12 +538,7 @@ function cargaDatos(fecha){
     callBack(numeroJuegos);
   }
 
-function goTo(ruta){
-  console.log("si ingresa a goTo "+ruta);
-  //mainView.router.navigate(ruta,{animate:true});
-  mainView.router.navigate(ruta,{transition: 'f7-flip'});
-  router.navigate('/some-page/', {  })
-}
+
 
 function SetCalendar(){
   var monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August' , 'September' , 'October', 'November', 'December'];
@@ -593,21 +626,21 @@ function getJuegos(){
           //Es número impar
           //Se termina de crear la cadena para mostar el marcador de ambos equipos
           nombre_visitante =  results.rows.item(i).equ_nombre;
-          getMarcadores(gcliente,gsucursal,results.rows.item(i).id_torneo,results.rows.item(i).id_jornada,results.rows.item(i).id_juego,results.rows.item(i).enc_locvis,nombre_visitante,'','',0, function(resultado){
-          //En el arreglo de "resultado", se estiene los datos del marcador, equipo y jornada
-          arr = resultado.split("|");
-          marcador = parseInt(arr[0]);
-          equipo = arr[1];
-          jornada = arr[2];
-          if (marcador == 99){
-            marcador_string += "- ?";
-          }else{
-            marcador_string +='- '+String(marcador);
-          }
-          //La sig. function, termina de concatenar la cadena para mostrar en el List, incluso también muestra el List
-          setMarcadorVisitante(marcador_string,equipo);
-        });
-      }else{
+          getMarcadores(gcliente,gsucursal,results.rows.item(i).id_torneo,results.rows.item(i).id_jornada,results.rows.item(i).id_juego,results.rows.item(i).enc_locvis,nombre_visitante,'','',0,'', function(resultado){
+            //En el arreglo de "resultado", se estiene los datos del marcador, equipo y jornada
+            arr = resultado.split("|");
+            marcador = parseInt(arr[0]);
+            equipo = arr[1];
+            jornada = arr[2];
+            if (marcador == 99){
+              marcador_string += "- ?";
+            }else{
+              marcador_string +='- '+String(marcador);
+            }
+            //La sig. function, termina de concatenar la cadena para mostrar en el List, incluso también muestra el List
+            setMarcadorVisitante(marcador_string,equipo);
+          });
+        }else{
           // Es número par
           // Número par, se obtiene fecha, torneo, estatus del juego, equipo local y su marcador
           switch(results.rows.item(i).cal_estatus){
@@ -623,21 +656,22 @@ function getJuegos(){
           nombre_local = results.rows.item(i).equ_nombre;
           jornada = results.rows.item(i).id_jornada;
           nombre_torneo =results.rows.item(i).tor_nombre;
-          getMarcadores(gcliente,gsucursal,results.rows.item(i).id_torneo,results.rows.item(i).id_jornada,results.rows.item(i).id_juego,results.rows.item(i).enc_locvis,nombre_local,formatted_date,nombre_torneo, i, function(resultado){
-          arr = resultado.split("|");
-          marcador = parseInt(arr[0]);
-          equipo = arr[1];
-          jornada = arr[2];
-          fecha_juego = arr[3];
-          nombre_torneo = arr[4];
-          contador = arr[5];
-          if (marcador == 99){
-              marcador_string = "¿ ";
-          }else{
-            marcador_string = String(marcador) + " ";
-          }
-          setMarcadorLocal(fecha_juego,nombre_torneo,jornada,estatus_juego,equipo,contador);
-          });
+          getMarcadores(gcliente,gsucursal,results.rows.item(i).id_torneo,results.rows.item(i).id_jornada,results.rows.item(i).id_juego,results.rows.item(i).enc_locvis,nombre_local,formatted_date,nombre_torneo, i, estatus_juego, function(resultado){
+            arr = resultado.split("|");
+            marcador = parseInt(arr[0]);
+            equipo = arr[1];
+            jornada = arr[2];
+            fecha_juego = arr[3];
+            nombre_torneo = arr[4];
+            contador = arr[5];
+            estatus_juego = arr[6];
+            if (marcador == 99){
+                marcador_string = "¿ ";
+            }else{
+              marcador_string = String(marcador) + " ";
+            }
+            setMarcadorLocal(fecha_juego,nombre_torneo,jornada,estatus_juego,equipo,contador);
+            });
           //console.log('el marcador es '+marcador_string);
           //Si yo pongo el console.log aqui, no imprime el valor de marcador_string, que diferencia hay? la valiable está 
       
@@ -668,7 +702,7 @@ function setMarcadorVisitante(marcador_string,nombre_visitante){
   $$('#lista-juegos').append(juego);
 }
 
-function getMarcadores(cliente,sucursal,torneo,jornada,juego,locvis,nombre_equipo,fecha_juego,nom_torneo,contador,callBack){
+function getMarcadores(cliente,sucursal,torneo,jornada,juego,locvis,nombre_equipo,fecha_juego,nom_torneo,contador,estatus, callBack){
   //Obtiene el marcador según los parámetros recibidos
   //var goles = 5;
   db.transaction(function (tx){
@@ -685,7 +719,7 @@ function getMarcadores(cliente,sucursal,torneo,jornada,juego,locvis,nombre_equip
           goles = 99;
         }
       }
-      callBack(goles+"|"+nombre_equipo+"|"+jornada+"|"+fecha_juego+"|"+nom_torneo+"|"+contador);
+      callBack(goles+"|"+nombre_equipo+"|"+jornada+"|"+fecha_juego+"|"+nom_torneo+"|"+contador+"|"+estatus);
     },function(err){
       console.log(err);
       notificacion("AVISO","No fue posible obtener marcador,favor de avisar a la oficina");
@@ -724,11 +758,10 @@ function getDatosJuego(contador){
   var torneo = $$('#nombre-torneo-'+String(contador)).text();
   var jornada = $$('#id_jornada-'+String(contador)).text();
   gestatus_juego = $$('#estatus-juego-'+String(contador)).text();
-  //mainView.router.navigate(`/tablero/${String(fecha)}/`,{animate:true});
   mainView.router.navigate(`/tablero/${fecha}/${torneo}/${jornada}/`,{animate:true});
 }
 
-/* Cuando se le da tap(click) en el Tablero a los goles LOCALES */
+/* Cuando se le da tap(click) en el Tablero a los goles*/
 function gol(tipo){
   var locVis = tipo;
   var nomEquipo = "";
@@ -830,56 +863,64 @@ function getJugadoresGoles(locvis){
 }
 
 function insertaGol(idJugador){
-  var totGoles = 0;
-  if (glocvis == 'L'){
-    equipo = gidEquipoLocal;
-  }else{
-    equipo = gidEquipoVisita;
-  }
-  /* Se inserta el jugador en la tabla detalle_encuentro */
-  //cadena = "insert into detalle_encuentro(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_minuto,denc_gol,denc_roja,denc_amarilla) values('"+String(gcliente)+"','"+String(gsucursal)+"','"+gidTorneo+"','"+gidJornada+"','"+gidJuego+"','"+equipo+"','"+glocvis+"','"+idJugador+"',"+totRegistros+",1,0,0)";
-  cadena = "insert into detalle_encuentro(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_gol,denc_roja,denc_amarilla) values('"+String(gcliente)+"','"+String(gsucursal)+"','"+gidTorneo+"','"+gidJornada+"','"+gidJuego+"','"+equipo+"','"+glocvis+"','"+idJugador+"',1,0,0)";
-  insertaReg(cadena,db,function(resultado){
-    if(resultado == 'INSERTADO'){
-      totGoles = $$('#goles-'+idJugador).text();
-      totGoles++;
-      $$('#goles-'+String(idJugador)).text(String(totGoles));
-      // Actualiza el titúlo con el total de goles
-      refreshTotGoles(glocvis);
+  if(gestatus_juego != 'Jugado'){
+    var totGoles = 0;
+    if (glocvis == 'L'){
+      equipo = gidEquipoLocal;
+    }else{
+      equipo = gidEquipoVisita;
     }
-  });
-}
-
-function eliminaGol(idJugador){
-  var totGoles = 0;
-  if (glocvis == 'L'){
-    equipo = gidEquipoLocal;
-  }else{
-    equipo = gidEquipoVisita;
-  }
-  /* Se obtiene el max(denc_minuto) del jugador en question, esto para poder eliminar SOLO 1 registro */
-  cadena = "SELECT MAX(CAST(denc_minuto AS INTEGER)) maximo FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+equipo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_gol = 1";
-  ejecutaQuery(cadena,db,"maxMinuto",function(maxMinuto){
-    /* Se elimina el jugador en la tabla detalle_encuentro */
-    cadena = "DELETE FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+equipo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_minuto = "+String(maxMinuto)+" AND denc_gol = 1";
-    eliminaReg(cadena,db,function(resultado){
-      if(resultado == 'ELIMINADO'){
+    /* Se inserta el jugador en la tabla detalle_encuentro */
+    //cadena = "insert into detalle_encuentro(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_minuto,denc_gol,denc_roja,denc_amarilla) values('"+String(gcliente)+"','"+String(gsucursal)+"','"+gidTorneo+"','"+gidJornada+"','"+gidJuego+"','"+equipo+"','"+glocvis+"','"+idJugador+"',"+totRegistros+",1,0,0)";
+    cadena = "insert into detalle_encuentro(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_gol,denc_roja,denc_amarilla) values('"+String(gcliente)+"','"+String(gsucursal)+"','"+gidTorneo+"','"+gidJornada+"','"+gidJuego+"','"+equipo+"','"+glocvis+"','"+idJugador+"',1,0,0)";
+    insertaReg(cadena,db,function(resultado){
+      if(resultado == 'INSERTADO'){
         totGoles = $$('#goles-'+idJugador).text();
-        totGoles--;
-        if (totGoles < 0){
-          totGoles = 0;
-        }
+        totGoles++;
         $$('#goles-'+String(idJugador)).text(String(totGoles));
         // Actualiza el titúlo con el total de goles
         refreshTotGoles(glocvis);
       }
     });
-  });
+  }else{
+    app7.dialog.alert("El estatus del encuentro ("+gestatus_juego+") no permite realizar ningún cambio en el marcador", "AVISO");
+  }
+}
+
+function eliminaGol(idJugador){
+  if(gestatus_juego != 'Jugado'){
+    var totGoles = 0;
+    if (glocvis == 'L'){
+      equipo = gidEquipoLocal;
+    }else{
+      equipo = gidEquipoVisita;
+    }
+    /* Se obtiene el max(denc_minuto) del jugador en question, esto para poder eliminar SOLO 1 registro */
+    cadena = "SELECT MAX(CAST(denc_minuto AS INTEGER)) maximo FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+equipo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_gol = 1";
+    ejecutaQuery(cadena,db,"maxMinuto",function(maxMinuto){
+      /* Se elimina el jugador en la tabla detalle_encuentro */
+      cadena = "DELETE FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+equipo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_minuto = "+String(maxMinuto)+" AND denc_gol = 1";
+      eliminaReg(cadena,db,function(resultado){
+        if(resultado == 'ELIMINADO'){
+          totGoles = $$('#goles-'+idJugador).text();
+          totGoles--;
+          if (totGoles < 0){
+            totGoles = 0;
+          }
+          $$('#goles-'+String(idJugador)).text(String(totGoles));
+          // Actualiza el titúlo con el total de goles
+          refreshTotGoles(glocvis);
+        }
+      });
+    });
+  }else{
+    app7.dialog.alert("El estatus del encuentro ("+gestatus_juego+") no permite realizar ningún cambio en el marcador", "AVISO");
+  }
 }
 
 function refreshTablero(){
    //Obtiene Marcador Local
-   getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,"L","","","",0, function(golesL){
+   getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,"L","","","",0,"", function(golesL){
     arr = golesL.split("|");
     marcador = parseInt(arr[0]);
     if (marcador == 99){
@@ -889,7 +930,7 @@ function refreshTablero(){
     }
     $$('#tab-goles-local').text(marcador_string);
     //Obtiene Marcador Visita
-    getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,"V","","","",0, function(golesV){
+    getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,"V","","","",0,"", function(golesV){
       arr = golesV.split("|");
       marcador = parseInt(arr[0]);
       if (marcador == 99){
@@ -917,7 +958,7 @@ function refreshTablero(){
 }
 
 function refreshTotGoles(enclocvis){
-  getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,enclocvis,"","","",0, function(golesR){
+  getMarcadores(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,enclocvis,"","","",0,"", function(golesR){
     arr = golesR.split("|");
     marcador = parseInt(arr[0]);
     if (marcador == 99){
@@ -985,32 +1026,34 @@ function getJugadoresTarjetas(locvis){
           //El jugador no tiene rojas, se muestra el ico correspondiente a la tarjeta bca.
           cadena = '<div class="block block-jugador-tarjeta"><div class="row"><div class="col col-jugador-datos-tarjeta" id="jugador-id-tarjeta-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto-tarjeta"><img src="data:image/png;base64, '+foto2+'" width="60"/></div><div class="col col-icon-tarjeta-amarilla" id="ico-tarjeta-amarilla"><img src="../img/tarjeta_amarilla.png" width="60"/></div><div class="col col-numtarjeta-amarilla" id="tarjetas-amarillas-'+id_jugador+'">'+String(amarillas)+'</div><div class="col col-icon-suma-tarjeta" id="suma-tarjeta" onclick = "insertaTarjeta('+id_jugador+')"><img src="../img/plus-circle.png"/></div><div class="col col-icon-suma-tarjeta" id="resta-amarilla" onclick = "eliminaTarjeta('+id_jugador+')"><img src="../img/minus-circle.png"/></div><div class="col col-icon-tarjeta-roja" id="ico-tarjeta-roja-'+id_jugador+'" onclick = "tarjetaRoja('+id_jugador+')"><img src="../img/tarjeta_bco.png" width="55"/></div></div></div>';
         }
-        //alert(cadena);
         $$('#lista-jugadores-tarjetas').append(cadena);
       }
-      
     });
   });
 }
 
 function insertaTarjeta(idJugador){
-  var totTarjetas = 0;
-  if (glocvis == 'L'){
-    equipo = gidEquipoLocal;
-  }else{
-    equipo = gidEquipoVisita;
-  }
-  /* Se inserta el jugador en la tabla detalle_encuentro */
-  cadena = "insert into detalle_encuentro(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_gol,denc_roja,denc_amarilla) values('"+String(gcliente)+"','"+String(gsucursal)+"','"+gidTorneo+"','"+gidJornada+"','"+gidJuego+"','"+equipo+"','"+glocvis+"','"+idJugador+"',0,0,1)";
-  insertaReg(cadena,db,function(resultado){
-    if(resultado == 'INSERTADO'){
-      totTarjetas = $$('#tarjetas-amarillas-'+idJugador).text();
-      totTarjetas++;
-      $$('#tarjetas-amarillas-'+String(idJugador)).text(String(totTarjetas));
-      // Actualiza el titúlo con el total de goles
-      refreshTotTarjetas(glocvis);
+  if(gestatus_juego != 'Jugado'){
+    var totTarjetas = 0;
+    if (glocvis == 'L'){
+      equipo = gidEquipoLocal;
+    }else{
+      equipo = gidEquipoVisita;
     }
-  });
+    /* Se inserta el jugador en la tabla detalle_encuentro */
+    cadena = "insert into detalle_encuentro(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_gol,denc_roja,denc_amarilla) values('"+String(gcliente)+"','"+String(gsucursal)+"','"+gidTorneo+"','"+gidJornada+"','"+gidJuego+"','"+equipo+"','"+glocvis+"','"+idJugador+"',0,0,1)";
+    insertaReg(cadena,db,function(resultado){
+      if(resultado == 'INSERTADO'){
+        totTarjetas = $$('#tarjetas-amarillas-'+idJugador).text();
+        totTarjetas++;
+        $$('#tarjetas-amarillas-'+String(idJugador)).text(String(totTarjetas));
+        // Actualiza el titúlo con el total de goles
+        refreshTotTarjetas(glocvis);
+      }
+    });
+  }else{
+    app7.dialog.alert("El estatus del encuentro ("+gestatus_juego+") no permite realizar ningún cambio en tarjetas", "AVISO");
+  }
 }
 
 function refreshTotTarjetas(enclocvis){
@@ -1029,67 +1072,75 @@ function refreshTotTarjetas(enclocvis){
 }
 
 function eliminaTarjeta(idJugador){
-  var totTarjetas = 0;
-  if (glocvis == 'L'){
-    equipo = gidEquipoLocal;
-  }else{
-    equipo = gidEquipoVisita;
-  }
-  /* Se obtiene el max(denc_minuto) del jugador en question, esto para poder eliminar SOLO 1 registro */
-  cadena = "SELECT MAX(CAST(denc_minuto AS INTEGER)) maximo FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+equipo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_amarilla = 1";
-  ejecutaQuery(cadena,db,"maxMinuto",function(maxMinuto){
-    /* Se elimina el jugador en la tabla detalle_encuentro */
-    cadena = "DELETE FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+equipo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_minuto = "+String(maxMinuto)+" AND denc_amarilla = 1";
- 
-    eliminaReg(cadena,db,function(resultado){
-      if(resultado == 'ELIMINADO'){
-        /* Se actualiza en la vista la cantidad de tarjetas del jugador*/
-        totAmarillas = $$('#tarjetas-amarillas-'+idJugador).text();
-        totAmarillas--;
-        if (totAmarillas < 0){
-          totAmarillas = 0;
+  if(gestatus_juego != 'Jugado'){
+    var totTarjetas = 0;
+    if (glocvis == 'L'){
+      equipo = gidEquipoLocal;
+    }else{
+      equipo = gidEquipoVisita;
+    }
+    /* Se obtiene el max(denc_minuto) del jugador en question, esto para poder eliminar SOLO 1 registro */
+    cadena = "SELECT MAX(CAST(denc_minuto AS INTEGER)) maximo FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+equipo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_amarilla = 1";
+    ejecutaQuery(cadena,db,"maxMinuto",function(maxMinuto){
+      /* Se elimina el jugador en la tabla detalle_encuentro */
+      cadena = "DELETE FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+equipo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_minuto = "+String(maxMinuto)+" AND denc_amarilla = 1";
+  
+      eliminaReg(cadena,db,function(resultado){
+        if(resultado == 'ELIMINADO'){
+          /* Se actualiza en la vista la cantidad de tarjetas del jugador*/
+          totAmarillas = $$('#tarjetas-amarillas-'+idJugador).text();
+          totAmarillas--;
+          if (totAmarillas < 0){
+            totAmarillas = 0;
+          }
+          $$('#tarjetas-amarillas-'+String(idJugador)).text(String(totAmarillas));
+          // Actualiza el titúlo con el total de goles
+          refreshTotTarjetas(glocvis);
         }
-        $$('#tarjetas-amarillas-'+String(idJugador)).text(String(totAmarillas));
-        // Actualiza el titúlo con el total de goles
-        refreshTotTarjetas(glocvis);
-      }
+      });
     });
-  });
+  }else{
+    app7.dialog.alert("El estatus del encuentro ("+gestatus_juego+") no permite realizar ningún cambio en tarjetas", "AVISO");
+  }
 }
 
 function tarjetaRoja(idJugador){
-  /* Se obtiene el total de tarjetas rojas que tiene el jugador en cuestio, si el jugador tiene tarjeta roja
-     se procede a eliminar dicha tarjeta y cambia el ico por tarjeta bco, caso contrario que el jugador no tenga
-     tarjeta roja, se inserta roja y se cambia el ico a roja */
-    if (glocvis == 'L'){
-      idequipoinvo = gidEquipoLocal;
-    }else{
-      idequipoinvo = gidEquipoVisita;
-    }
-  cadena = "SELECT COUNT(*) tot_registros FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+String(gidTorneo)+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+idequipoinvo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_roja = 1";
-  //Se valida si el jugador tiene tarjeta roja o no */
-  ejecutaQuery(cadena,db,"numRegistros",function(totRegistros){
-    if(totRegistros > 0){
-      /* Si hay roja, se procede a eliminar y cambiar el ico por bco. */
-      cadena = "DELETE FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+idequipoinvo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_roja = 1";
-      eliminaReg(cadena,db,function(resultado){
-        if(resultado == 'ELIMINADO'){
-          /* Se cambia el ico por bco.*/
-          $$('#ico-tarjeta-roja-'+String(idJugador)).attr('src','../img/tarjeta_bco.png');
-        }
-      });
-    }else{
-      /* No existe tarjeta roja para el jugador en cuestión, se inserta una y se cambia el ico por tarjeta roja */
-      cadena = "insert into detalle_encuentro(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_gol,denc_roja,denc_amarilla) values('"+String(gcliente)+"','"+String(gsucursal)+"','"+gidTorneo+"','"+gidJornada+"','"+gidJuego+"','"+idequipoinvo+"','"+glocvis+"','"+idJugador+"',0,1,0)";
-      insertaReg(cadena,db,function(resultado2){
-        if(resultado2 == 'INSERTADO'){
-            /* Se cambia el ico por roja*/
-          $$('#ico-tarjeta-roja-'+String(idJugador)).attr('src','../img/tarjeta_roja.png');
-        }
-      });
-    }
-    refreshTotTarjetas(glocvis);
-  });
+  if(gestatus_juego != 'Jugado'){
+    /* Se obtiene el total de tarjetas rojas que tiene el jugador en cuestio, si el jugador tiene tarjeta roja
+      se procede a eliminar dicha tarjeta y cambia el ico por tarjeta bco, caso contrario que el jugador no tenga
+      tarjeta roja, se inserta roja y se cambia el ico a roja */
+      if (glocvis == 'L'){
+        idequipoinvo = gidEquipoLocal;
+      }else{
+        idequipoinvo = gidEquipoVisita;
+      }
+    cadena = "SELECT COUNT(*) tot_registros FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+String(gidTorneo)+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+idequipoinvo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_roja = 1";
+    //Se valida si el jugador tiene tarjeta roja o no */
+    ejecutaQuery(cadena,db,"numRegistros",function(totRegistros){
+      if(totRegistros > 0){
+        /* Si hay roja, se procede a eliminar y cambiar el ico por bco. */
+        cadena = "DELETE FROM detalle_encuentro WHERE id_cliente = '"+String(gcliente)+"' AND id_sucursal = '"+String(gsucursal)+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"' AND id_equipo = '"+idequipoinvo+"' AND enc_locvis = '"+glocvis+"' AND id_jugador = '"+idJugador+"' AND denc_roja = 1";
+        eliminaReg(cadena,db,function(resultado){
+          if(resultado == 'ELIMINADO'){
+            /* Se cambia el ico por bco.*/
+            $$('#ico-tarjeta-roja-'+String(idJugador)).attr('src','../img/tarjeta_bco.png');
+          }
+        });
+      }else{
+        /* No existe tarjeta roja para el jugador en cuestión, se inserta una y se cambia el ico por tarjeta roja */
+        cadena = "insert into detalle_encuentro(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_gol,denc_roja,denc_amarilla) values('"+String(gcliente)+"','"+String(gsucursal)+"','"+gidTorneo+"','"+gidJornada+"','"+gidJuego+"','"+idequipoinvo+"','"+glocvis+"','"+idJugador+"',0,1,0)";
+        insertaReg(cadena,db,function(resultado2){
+          if(resultado2 == 'INSERTADO'){
+              /* Se cambia el ico por roja*/
+            $$('#ico-tarjeta-roja-'+String(idJugador)).attr('src','../img/tarjeta_roja.png');
+          }
+        });
+      }
+      refreshTotTarjetas(glocvis);
+    });
+  }else{
+    app7.dialog.alert("El estatus del encuentro ("+gestatus_juego+") no permite realizar ningún cambio en tarjetas", "AVISO");
+  }
 }
 
 function getTarjetasRojas(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,glocvis, callBack){
@@ -1103,6 +1154,124 @@ function getTarjetasRojas(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,glocv
   //Se valida si el equipo tiene tarjetas roja o no */
   ejecutaQuery(cadena,db,"numRegistros",function(totRegistros){
     callBack(totRegistros);
+  });
+}
+
+function cedula(){
+  mainView.router.navigate('/show-cedula/',{animate:true}); 
+}
+
+function getDatosJuegoCedula(callBack){
+   //Borra contenido del Block
+   $$('#show-cedula-datgen').html("");
+   var datgenerales = ' <div class="row"><div class="col" id="show-cedula-logo"><img src="../img/LogoCte1.jpg" width="70"/></div></div><div class="row"><div class="col" id="show-cedula-jornada">Jornada # '+gidJornada+'</div><div class="col" id="show-cedula-torneo">Torneo: '+gnomTorneo+'</div></div><div class="row"><div class="col" id="show-cedula-fecha">Fecha/Hora del partido: '+gfechaHoraJuego+'</div> <div class="col" id="show-cedula-arbitro">Árbitro del partido: Héctor Gómez</div></div><div class="row"><div class="col col-show-cedula-equipo-local" id="show-cedula-equipo-local">Equipo Local: '+gnomEquipoLocal+'</div><div class="col" id="show-cedula">&nbsp</div></div>';
+   $$('#show-cedula-datgen').append(datgenerales);
+   callBack("YA");
+  }
+
+function getJugadoresCedula(locvisced, callBack){
+  if(locvisced == 'L'){
+    idEquipo = gidEquipoLocal;
+  }else{
+    idEquipo = gidEquipoVisita;
+  }
+  //Borra contenido de lista-jugadores
+  $$('#show-cedula-jugadores').html("");
+  db.transaction(function (tx){
+    var select1 = "SELECT jugador.id_jugador,jugador.jug_playera, jugador.jug_nombre, jugador.jug_representante, jugador.jug_foto, (SELECT SUM(detalle_encuentro.denc_gol) FROM detalle_encuentro WHERE detalle_encuentro.id_cliente = jugador.id_cliente and detalle_encuentro.id_sucursal = jugador.id_sucursal and detalle_encuentro.id_torneo = jugador.id_torneo and detalle_encuentro.id_jornada = '"+gidJornada+"' and detalle_encuentro.id_juego = '"+gidJuego+"' and detalle_encuentro.id_equipo = jugador.id_equipo and detalle_encuentro.enc_locvis = '"+locvisced+"' and detalle_encuentro.id_jugador = jugador.id_jugador) as goles, ";
+    var select2 = "(SELECT SUM(detalle_encuentro.denc_amarilla) FROM detalle_encuentro WHERE detalle_encuentro.id_cliente = jugador.id_cliente and detalle_encuentro.id_sucursal = jugador.id_sucursal and detalle_encuentro.id_torneo = jugador.id_torneo and detalle_encuentro.id_jornada = '"+gidJornada+"' and detalle_encuentro.id_juego = '"+gidJuego+"' and detalle_encuentro.id_equipo = jugador.id_equipo and detalle_encuentro.enc_locvis = '"+locvisced+"' and detalle_encuentro.id_jugador = jugador.id_jugador) as amarillas, ";
+    var select3 = "(SELECT SUM(detalle_encuentro.denc_roja) FROM detalle_encuentro WHERE detalle_encuentro.id_cliente = jugador.id_cliente and detalle_encuentro.id_sucursal = jugador.id_sucursal and detalle_encuentro.id_torneo = jugador.id_torneo and detalle_encuentro.id_jornada = '"+gidJornada+"' and detalle_encuentro.id_juego = '"+gidJuego+"' and detalle_encuentro.id_equipo = jugador.id_equipo and detalle_encuentro.enc_locvis = '"+locvisced+"' and detalle_encuentro.id_jugador = jugador.id_jugador) as rojas ";
+    var from    = 'FROM jugador ';
+    var where   = "WHERE jugador.id_cliente = '"+gcliente+"' and jugador.id_sucursal = '"+gsucursal+"' and jugador.id_torneo = '"+gidTorneo+"' and jugador.id_equipo = '"+idEquipo+"' ";
+    var order   = 'ORDER BY CAST(jugador.jug_playera AS INTEGER)';   
+    var sql     = select1 + select2+ select3+ from + where + order;
+    tx.executeSql(sql,[],function callback(tx,results){
+      var regjugador = results.rows.length, i;
+      var id_jugador = "";
+      var jugador = "";
+      var goles = 0;
+      var amarillas = 0;
+      var rojas = 0;
+      var encabezados = '<table><thead class="col-encabezados-tabla"><tr><th class="label-cell col-titulo-tabla">Nombre Jugador</th><th class="numeric-cell">Gol</th><th class="numeric-cell">Tarjeta Amarilla</th><th class="numeric-cell">Tarjeta Roja</th></tr></thead>';
+      var aviso = 0;
+      var totgoles = 0;
+      var totamarillas = 0;
+      var totrojas = 0;
+      var cuantos = 0;
+      for(iii=0; iii<regjugador; iii++){
+        id_jugador = results.rows.item(iii).id_jugador;
+        jugador = "# "+results.rows.item(iii).jug_playera+" "+results.rows.item(iii).jug_nombre;
+        goles = results.rows.item(iii).goles
+        amarillas = results.rows.item(iii).amarillas;
+        rojas = results.rows.item(iii).rojas;
+        if (goles == null || goles == 0){
+          goles = 0;
+          strgoles = '&nbsp';
+        }else{
+          totgoles = totgoles + goles;
+          strgoles = String(goles);
+        }
+        if (amarillas == null || amarillas == 0){
+          amarillas = 0;
+          stramarillas = '&nbsp';
+        }else{
+          totamarillas = totamarillas + amarillas;
+          stramarillas = String(amarillas);
+        }
+        if (rojas == null || rojas == 0){
+          rojas = 0;
+          strrojas = '&nbsp';
+        }else{
+          totrojas = totrojas + rojas;
+          strrojas = String(rojas);
+        }
+        if(goles != 0 || amarillas != 0 || rojas !=0){
+          /* Si el jugador tiene alguno de los tres conceptos (goles,amarillas,rojas) diferente a 0 se imprime */
+          if(aviso == 0){
+            /* El encabezado aún no se imprime */
+            cadena = encabezados + '<tbody><tr><td class="label-cell">'+jugador+'</td><td class="numeric-cell">'+strgoles+'</td><td class="numeric-cell">'+stramarillas+'</td><td class="numeric-cell">'+strrojas+'</td></tr></tbody>';
+            aviso = 1;
+          }else{
+            cadena = cadena + '<tbody><tr><td class="label-cell">'+jugador+'</td><td class="numeric-cell">'+strgoles+'</td><td class="numeric-cell">'+stramarillas+'</td><td class="numeric-cell">'+strrojas+'</td></tr></tbody>';
+          }
+        }
+        if(++cuantos == regjugador){
+          callBack("YA");
+        }
+      }
+      var totales = '<tbody><tr><td class="label-cell">TOTALES</td><td class="numeric-cell">'+String(totgoles)+'</td><td class="numeric-cell">'+String(totamarillas)+'</td><td class="numeric-cell">'+String(totrojas)+'</td></tr></tbody>';
+      if(locvisced == 'L'){
+        cadena2 = '<div class="block block-show-cedula" id="show-cedula-datgen"><div class="row"><div class="col col-show-cedula-equipo-local" id="show-cedula-equipo-visita">Equipo Visita: '+gnomEquipoVisita+'</div><div class="col" id="show-cedula">&nbsp</div></div></div>';
+        cadena = cadena + totales + '</table>' + cadena2;
+      }else{
+        cadena = cadena + totales + '</table>';
+      }
+      $$('#show-cedula-jugadores').append(cadena);
+    });
+  });
+}
+
+function imprimir(){
+  alert("Aqui imprime");
+}
+
+function cerrar(){
+  if(gestatus_juego != 'Jugado'){
+    app7.dialog.confirm('¿ Estás seguro en cambiar el estatus del juego entre '+gnomEquipoLocal+' y '+gnomEquipoVisita+' ?','CONFIRMA', function () {
+      cambiarEstatus();
+    });
+  }else{
+    app7.dialog.alert("El encuentro ya se encuentra con el estatus ("+gestatus_juego+")", "AVISO");
+  }
+}
+
+function cambiarEstatus(){
+  cadena = "UPDATE calendario SET cal_estatus = '1' WHERE id_cliente = '"+gcliente+"' AND id_sucursal = '"+gsucursal+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"'";
+  //alert(cadena);
+  actualizaReg(cadena,db,function(resultado){
+    if(resultado == 'ACTUALIZADO'){
+      app7.dialog.alert("Cambio de estatus satisfactorio", "AVISO");
+      }
   });
 }
 
@@ -1344,6 +1513,17 @@ function ejecutaQuery(cadena,db,resultado,callBack){
       notificacion("AVISO","No fue posible obtener "+resultado+" en detalle_encuentro,favor de avisar a la oficina");
     })
   });
+}
+
+function actualizaReg(cadena,db,callBack){
+  console.log(cadena);
+  db.transaction(function (tx){
+    tx.executeSql(cadena);
+    callBack("ACTUALIZADO");
+   },function (err){
+      console.log(err);
+      notificacion("AVISO","No fue posible actualizar en la BD,favor de avisar a la oficina");
+ });
 }
 
 function checkNetWork() {
