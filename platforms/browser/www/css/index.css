@@ -198,6 +198,8 @@
 
 .block-title-cargar-juegos{
     font-weight: bold;
+    font-size: 15px;
+    color: green;
 }
 
 .list-cedula-sel{
@@ -274,6 +276,7 @@
     font-size: 15px;
     padding: 0;
     margin: 0;
+    text-overflow: ellipsis;
 }
 
 .row-cedula-sel-text4{

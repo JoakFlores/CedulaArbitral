@@ -15,25 +15,28 @@ const download = (url, path, callback) => {
 */
 
 
-var gcuenta = "";
-var gcliente = 0
-var gsucursal= 0
+var gcuenta           = "";
+var gcliente          = 0;
+var gsucursal         = 0;
 
 var calendarInline;
 
 var gestatus_juego;
-var gidTorneo = "";
-var gidEquipoVisita = "";
-var gidEquipoLocal = "";
-var gnomEquipoAfectado = "";
-var gidJuego = "";
-var gidJornada = "";
-var glocvis = "";
-var gfechaHoraJuego = "";
-var gnomTorneo = "";
-var gnomEquipoLocal = "";
-var gnomEquipoVisita = "";
+var gidTorneo         = "";
+var gidEquipoVisita   = "";
+var gidEquipoLocal    = "";
+var gnomEquipoAfectado= "";
+var gidJuego          = "";
+var gidJornada        = "";
+var glocvis           = "";
+var gfechaHoraJuego   = "";
+var gnomTorneo        = "";
+var gnomEquipoLocal   = "";
+var gnomEquipoVisita  = "";
 
+var gcedula           = [];
+var gbandera          = 0; //Bandera para identificar si el cronómetro está pausado o en start, 0=Pausado, 1=Start
+var gsiHayDatos       = 0; //Para el botón de continuar dentro de "Replicar", se valia si se están presentando datos o no hay
 
 
 var app = {
@@ -73,9 +76,9 @@ var app7 = new Framework7({
     // App root element
     root: '#app',
     // App Name
-    name: 'Team',
+    name: 'Cédula',
     // App id
-    id: 'com.team.app',
+    id: 'com.cedula.app',
     // Enable swipe panel
     panel: {
       swipe: 'left',
@@ -91,7 +94,7 @@ var app7 = new Framework7({
     routes: [
       {
         path: '/about/',
-        url: 'about.html',
+        url: 'views/acerca-de.html',
       },
       {
         path: '/home/',
@@ -118,22 +121,46 @@ var app7 = new Framework7({
         path: '/goles/:locVis/:nomEquipo',
         url: 'views/goles.html',
         name: 'goles',
+        options:{
+          transition: 'f7-flip', 
+        },
       },
       {
         path: '/tarjetas/:locVis/:nomEquipo',
         url: 'views/tarjetas.html',
         name: 'tarjetas',
+        options:{
+          transition: 'f7-flip', 
+        },
       },
       {
         path: '/show-cedula/',
         url: 'views/show-cedula.html',
+        options:{
+          transition: 'f7-flip', 
+        },
       },
-      
+      {
+        path: '/replicar/',
+        url: 'views/replicar.html',
+      },
+      {
+        path: '/show-condiciones/',
+        url: 'views/show-condiciones.html',
+        //url: `http://futcho7.com.mx/Cedula/CondicionesUso.htm`,
+      },
+      {
+        path: '/show-politica/',
+        url: 'views/show-politica.html',
+      },
+      {
+        path: '/show-firma/',
+        url: 'views/show-firma.html',
+      },
     ],
     // ... other parameters
   });
   var mainView = app7.views.create('.view-main');
-
 
 $$(document).on('page:init', '.page[data-name="home"]', function (e){
  ChecaCuenta();
@@ -158,31 +185,33 @@ $$(document).on('page:init', '.page[data-name="settings"]', function (e){
  $$(document).on('page:init', '.page[data-name="tablero"]', function (e){
   //En el objeto e, se guardaron los parámetros
   var fecha_formatted = "";
-  var dia = "";
-  var mes = "";
-  var yy = "";
-  var horas = ""
-  var posDia = 0;
-  var posMes = 0;
-  //var id_equipo_visita = "";
+  var dia             = "";
+  var mes             = "";
+  var yy              = "";
+  var horas           = "";
+  var posDia          = 0;
+  var posMes          = 0;
+
   const page = e.detail;
 
   var fecha = page.route.params.fechaJuego;
   gfechaHoraJuego = fecha;
   //Se formatea el String de la fecha en yyyy-mm-dd hh:mm
-  posDia = fecha.indexOf("-");
-  dia = fecha.substring(0,posDia);
+  posDia  = fecha.indexOf("-");
+  dia     = fecha.substring(0,posDia);
   if (parseInt(dia) < 10){
     dia = '0'+dia;
   }
-  posMes = fecha.indexOf("-",posDia+1);
-  mes = fecha.substring(posDia+1,posMes);
+  posMes  = fecha.indexOf("-",posDia+1);
+  mes     = fecha.substring(posDia+1,posMes);
   if (parseInt(mes) < 10){
     mes = '0'+mes;
   }
-  yy = fecha.substring(posMes+1,posMes+5);
+  yy    = fecha.substring(posMes+1,posMes+5);
   horas = fecha.substring(posMes+6,30)+":00";
   fecha_formatted = yy+"-"+mes+"-"+dia+" "+horas;
+  //El cronómetro se iguala según el valor de lo especificado en la configuración
+  $$('#tab-cronometro').text(localStorage.getItem("minutos"));
 
   var torneo = page.route.params.nomTorneo;
   gnomTorneo = torneo;
@@ -305,12 +334,28 @@ $$(document).on('page:init', '.page[data-name="show-cedula"]', function (f){
   getDatosJuegoCedula(function(d){
     getJugadoresCedula('L', function (f){
       getJugadoresCedula('V', function(e){
+        showIconCierre(); // Muestra el ico correspondiente según el estatus del juego
   
       });
     });
   });
 });
 
+$$(document).on('page:init', '.page[data-name="replicar"]', function (e){
+  getJuegosReplicar();
+});
+
+$$(document).on('page:init', '.page[data-name="acerca-de"]', function (e){
+
+});
+
+$$(document).on('page:reinit', '.page[data-name="show-politica"]', function (e){
+  
+});
+
+$$(document).on('page:reinit', '.page[data-name="show-firma"]', function (e){
+  
+});
  
 
 /*
@@ -450,13 +495,13 @@ function cargaDatos(fecha){
           var objson = JSON.parse(data);
           if (objson.status == 0){
             BarreJson(objson,function(f){
-              console.log("Aqui el resultado");
-              conslose.log(f);
+              //console.log("Aqui el resultado");
+              //conslose.log(f);
               app7.preloader.hide();
               app7.dialog.alert("El proceso ha concluido, el dispositivo cuenta con "+String(f)+" juegos, puedes continuar con la elaboración de la cédula arbitral para cada uno de ellos", "Carga de Datos");
             });
           }else{
-            app7.preloader.hide();
+            //app7.preloader.hide();
             app7.dialog.alert("No existen juegos con la fecha proporcionada, revise si hay un error, caso contrario... favor de reportarlo en la oficina de la cancha", "AVISO");
           }
         },
@@ -644,6 +689,9 @@ function getJuegos(){
           // Es número par
           // Número par, se obtiene fecha, torneo, estatus del juego, equipo local y su marcador
           switch(results.rows.item(i).cal_estatus){
+            case '2':
+              estatus_juego = 'Ya Replicado';
+              break;
             case '1':
               estatus_juego = 'Jugado';
               break;
@@ -853,7 +901,6 @@ function getJugadoresGoles(locvis){
         if (goles == null){
           goles = 0;
         }
-        //cadena = '<div class="block block-jugador-gol"><div class="row"><div class="col col-jugador-datos-gol" id="jugador-id-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto"><img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" width="60"/></div><div class="col col-icon-suma-gol" id="suma-gol" onclick = "insertaGol('+id_jugador+')"><img src="../img/plus-circle.png"/></div><div class="col col-icon-balon-gol" id="ico-balon"><img src="../img/Balon.ico" width="60"/></div><div class="col col-numgoles-gol" id="goles-'+id_jugador+'">'+String(goles)+'</div><div class="col col-icon-suma-gol" id="resta-gol" onclick = "eliminaGol('+id_jugador+')"><img src="../img/minus-circle.png"/></div></div></div>';
         cadena = '<div class="block block-jugador-gol"><div class="row"><div class="col col-jugador-datos-gol" id="jugador-id-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto"><img src="data:image/png;base64, '+foto+'" width="60"/></div><div class="col col-icon-suma-gol" id="suma-gol" onclick = "insertaGol('+id_jugador+')"><img src="../img/plus-circle.png"/></div><div class="col col-icon-balon-gol" id="ico-balon"><img src="../img/Balon.ico" width="60"/></div><div class="col col-numgoles-gol" id="goles-'+id_jugador+'">'+String(goles)+'</div><div class="col col-icon-suma-gol" id="resta-gol" onclick = "eliminaGol('+id_jugador+')"><img src="../img/minus-circle.png"/></div></div></div>';
         $$('#lista-jugadores').append(cadena);
       }
@@ -863,7 +910,7 @@ function getJugadoresGoles(locvis){
 }
 
 function insertaGol(idJugador){
-  if(gestatus_juego != 'Jugado'){
+  if(gestatus_juego == 'Por Jugar'){
     var totGoles = 0;
     if (glocvis == 'L'){
       equipo = gidEquipoLocal;
@@ -888,7 +935,7 @@ function insertaGol(idJugador){
 }
 
 function eliminaGol(idJugador){
-  if(gestatus_juego != 'Jugado'){
+  if(gestatus_juego == 'Por Jugar'){
     var totGoles = 0;
     if (glocvis == 'L'){
       equipo = gidEquipoLocal;
@@ -1007,6 +1054,7 @@ function getJugadoresTarjetas(locvis){
       var amarillas = 0;
       var foto2 = "";
       var rojas = 0;
+      var cadena_tarjetas = "";
       for(ii=0; ii<regjugador; ii++){
         id_jugador = results.rows.item(ii).id_jugador;
         jugador = "# "+results.rows.item(ii).jug_playera+" "+results.rows.item(ii).jug_nombre;
@@ -1021,19 +1069,19 @@ function getJugadoresTarjetas(locvis){
         }
         if (rojas > 0){
           //El jugador tiene tarjeta roja, se muestra el ico correspondiente a la tarjeta roja
-          cadena = '<div class="block block-jugador-tarjeta"><div class="row"><div class="col col-jugador-datos-tarjeta" id="jugador-id-tarjeta-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto-tarjeta"><img src="data:image/png;base64, '+foto2+'" width="60"/></div><div class="col col-icon-tarjeta-amarilla" id="ico-tarjeta-amarilla"><img src="../img/tarjeta_amarilla.png" width="60"/></div><div class="col col-numtarjeta-amarilla" id="tarjetas-amarillas-'+id_jugador+'">'+String(amarillas)+'</div><div class="col col-icon-suma-tarjeta" id="suma-tarjeta" onclick = "insertaTarjeta('+id_jugador+')"><img src="../img/plus-circle.png"/></div><div class="col col-icon-suma-tarjeta" id="resta-amarilla" onclick = "eliminaTarjeta('+id_jugador+')"><img src="../img/minus-circle.png"/></div><div class="col col-icon-tarjeta-roja" id="ico-tarjeta-roja-'+id_jugador+'" onclick = "tarjetaRoja('+id_jugador+')"><img src="../img/tarjeta_roja.png" width="60"/></div></div></div>';
+          cadena_tarjetas = '<div class="block block-jugador-tarjeta"><div class="row"><div class="col col-jugador-datos-tarjeta" id="jugador-id-tarjeta-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto-tarjeta"><img src="data:image/png;base64, '+foto2+'" width="60"/></div><div class="col col-icon-tarjeta-amarilla" id="ico-tarjeta-amarilla"><img src="../img/tarjeta_amarilla.png" width="60"/></div><div class="col col-numtarjeta-amarilla" id="tarjetas-amarillas-'+id_jugador+'">'+String(amarillas)+'</div><div class="col col-icon-suma-tarjeta" id="suma-tarjeta" onclick = "insertaTarjeta('+id_jugador+')"><img src="../img/plus-circle.png"/></div><div class="col col-icon-suma-tarjeta" id="resta-amarilla" onclick = "eliminaTarjeta('+id_jugador+')"><img src="../img/minus-circle.png"/></div><div class="col col-icon-tarjeta-roja" id="ico-tarjeta-roja-'+id_jugador+'" onclick = "tarjetaRoja('+id_jugador+')"><img src="../img/tarjeta_roja.png" width="55"/></div></div></div>';
         }else{
           //El jugador no tiene rojas, se muestra el ico correspondiente a la tarjeta bca.
-          cadena = '<div class="block block-jugador-tarjeta"><div class="row"><div class="col col-jugador-datos-tarjeta" id="jugador-id-tarjeta-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto-tarjeta"><img src="data:image/png;base64, '+foto2+'" width="60"/></div><div class="col col-icon-tarjeta-amarilla" id="ico-tarjeta-amarilla"><img src="../img/tarjeta_amarilla.png" width="60"/></div><div class="col col-numtarjeta-amarilla" id="tarjetas-amarillas-'+id_jugador+'">'+String(amarillas)+'</div><div class="col col-icon-suma-tarjeta" id="suma-tarjeta" onclick = "insertaTarjeta('+id_jugador+')"><img src="../img/plus-circle.png"/></div><div class="col col-icon-suma-tarjeta" id="resta-amarilla" onclick = "eliminaTarjeta('+id_jugador+')"><img src="../img/minus-circle.png"/></div><div class="col col-icon-tarjeta-roja" id="ico-tarjeta-roja-'+id_jugador+'" onclick = "tarjetaRoja('+id_jugador+')"><img src="../img/tarjeta_bco.png" width="55"/></div></div></div>';
+          cadena_tarjetas = '<div class="block block-jugador-tarjeta"><div class="row"><div class="col col-jugador-datos-tarjeta" id="jugador-id-tarjeta-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto-tarjeta"><img src="data:image/png;base64, '+foto2+'" width="60"/></div><div class="col col-icon-tarjeta-amarilla" id="ico-tarjeta-amarilla"><img src="../img/tarjeta_amarilla.png" width="60"/></div><div class="col col-numtarjeta-amarilla" id="tarjetas-amarillas-'+id_jugador+'">'+String(amarillas)+'</div><div class="col col-icon-suma-tarjeta" id="suma-tarjeta" onclick = "insertaTarjeta('+id_jugador+')"><img src="../img/plus-circle.png"/></div><div class="col col-icon-suma-tarjeta" id="resta-amarilla" onclick = "eliminaTarjeta('+id_jugador+')"><img src="../img/minus-circle.png"/></div><div class="col col-icon-tarjeta-roja" id="ico-tarjeta-roja-'+id_jugador+'" onclick = "tarjetaRoja('+id_jugador+')"><img src="../img/tarjeta_bco.png" width="55"/></div></div></div>';
         }
-        $$('#lista-jugadores-tarjetas').append(cadena);
+        $$('#lista-jugadores-tarjetas').append(cadena_tarjetas);
       }
     });
   });
 }
 
 function insertaTarjeta(idJugador){
-  if(gestatus_juego != 'Jugado'){
+  if(gestatus_juego == 'Por Jugar'){
     var totTarjetas = 0;
     if (glocvis == 'L'){
       equipo = gidEquipoLocal;
@@ -1072,7 +1120,7 @@ function refreshTotTarjetas(enclocvis){
 }
 
 function eliminaTarjeta(idJugador){
-  if(gestatus_juego != 'Jugado'){
+  if(gestatus_juego == 'Por Jugar'){
     var totTarjetas = 0;
     if (glocvis == 'L'){
       equipo = gidEquipoLocal;
@@ -1105,7 +1153,7 @@ function eliminaTarjeta(idJugador){
 }
 
 function tarjetaRoja(idJugador){
-  if(gestatus_juego != 'Jugado'){
+  if(gestatus_juego == 'Por Jugar'){
     /* Se obtiene el total de tarjetas rojas que tiene el jugador en cuestio, si el jugador tiene tarjeta roja
       se procede a eliminar dicha tarjeta y cambia el ico por tarjeta bco, caso contrario que el jugador no tenga
       tarjeta roja, se inserta roja y se cambia el ico a roja */
@@ -1123,7 +1171,7 @@ function tarjetaRoja(idJugador){
         eliminaReg(cadena,db,function(resultado){
           if(resultado == 'ELIMINADO'){
             /* Se cambia el ico por bco.*/
-            $$('#ico-tarjeta-roja-'+String(idJugador)).attr('src','../img/tarjeta_bco.png');
+            $$('#ico-tarjeta-roja-'+String(idJugador)).html('<img src="../img/tarjeta_bco.png" width="55"/>');
           }
         });
       }else{
@@ -1132,7 +1180,7 @@ function tarjetaRoja(idJugador){
         insertaReg(cadena,db,function(resultado2){
           if(resultado2 == 'INSERTADO'){
               /* Se cambia el ico por roja*/
-            $$('#ico-tarjeta-roja-'+String(idJugador)).attr('src','../img/tarjeta_roja.png');
+            $$('#ico-tarjeta-roja-'+String(idJugador)).html('<img src="../img/tarjeta_roja.png" width="55"/>');
           }
         });
       }
@@ -1198,6 +1246,8 @@ function getJugadoresCedula(locvisced, callBack){
       var totamarillas = 0;
       var totrojas = 0;
       var cuantos = 0;
+      var cadena_cedula = "";
+      var records = 0;
       for(iii=0; iii<regjugador; iii++){
         id_jugador = results.rows.item(iii).id_jugador;
         jugador = "# "+results.rows.item(iii).jug_playera+" "+results.rows.item(iii).jug_nombre;
@@ -1226,27 +1276,32 @@ function getJugadoresCedula(locvisced, callBack){
           strrojas = String(rojas);
         }
         if(goles != 0 || amarillas != 0 || rojas !=0){
+          records = 1;
           /* Si el jugador tiene alguno de los tres conceptos (goles,amarillas,rojas) diferente a 0 se imprime */
           if(aviso == 0){
             /* El encabezado aún no se imprime */
-            cadena = encabezados + '<tbody><tr><td class="label-cell">'+jugador+'</td><td class="numeric-cell">'+strgoles+'</td><td class="numeric-cell">'+stramarillas+'</td><td class="numeric-cell">'+strrojas+'</td></tr></tbody>';
+            cadena_cedula = encabezados + '<tbody><tr><td class="label-cell">'+jugador+'</td><td class="numeric-cell">'+strgoles+'</td><td class="numeric-cell">'+stramarillas+'</td><td class="numeric-cell">'+strrojas+'</td></tr></tbody>';
             aviso = 1;
           }else{
-            cadena = cadena + '<tbody><tr><td class="label-cell">'+jugador+'</td><td class="numeric-cell">'+strgoles+'</td><td class="numeric-cell">'+stramarillas+'</td><td class="numeric-cell">'+strrojas+'</td></tr></tbody>';
+            cadena_cedula = cadena_cedula + '<tbody><tr><td class="label-cell">'+jugador+'</td><td class="numeric-cell">'+strgoles+'</td><td class="numeric-cell">'+stramarillas+'</td><td class="numeric-cell">'+strrojas+'</td></tr></tbody>';
           }
         }
         if(++cuantos == regjugador){
           callBack("YA");
         }
       }
+      if (records == 0){
+        //No exisitieron registros, se visualiza la cédula vacia
+        cadena_cedula = encabezados;
+      }
       var totales = '<tbody><tr><td class="label-cell">TOTALES</td><td class="numeric-cell">'+String(totgoles)+'</td><td class="numeric-cell">'+String(totamarillas)+'</td><td class="numeric-cell">'+String(totrojas)+'</td></tr></tbody>';
       if(locvisced == 'L'){
         cadena2 = '<div class="block block-show-cedula" id="show-cedula-datgen"><div class="row"><div class="col col-show-cedula-equipo-local" id="show-cedula-equipo-visita">Equipo Visita: '+gnomEquipoVisita+'</div><div class="col" id="show-cedula">&nbsp</div></div></div>';
-        cadena = cadena + totales + '</table>' + cadena2;
+        cadena_cedula = cadena_cedula + totales + '</table>' + cadena2;
       }else{
-        cadena = cadena + totales + '</table>';
+        cadena_cedula = cadena_cedula + totales + '</table>';
       }
-      $$('#show-cedula-jugadores').append(cadena);
+      $$('#show-cedula-jugadores').append(cadena_cedula);
     });
   });
 }
@@ -1256,46 +1311,300 @@ function imprimir(){
 }
 
 function cerrar(){
-  if(gestatus_juego != 'Jugado'){
+  if(gestatus_juego == 'Por Jugar'){
     app7.dialog.confirm('¿ Estás seguro en cambiar el estatus del juego entre '+gnomEquipoLocal+' y '+gnomEquipoVisita+' ?','CONFIRMA', function () {
       cambiarEstatus();
     });
   }else{
-    app7.dialog.alert("El encuentro ya se encuentra con el estatus ("+gestatus_juego+")", "AVISO");
+    app7.dialog.alert("El encuentro ya se encuentra con el estatus ("+gestatus_juego+"), no procede cambiar el estatus", "AVISO");
   }
 }
 
 function cambiarEstatus(){
   cadena = "UPDATE calendario SET cal_estatus = '1' WHERE id_cliente = '"+gcliente+"' AND id_sucursal = '"+gsucursal+"' AND id_torneo = '"+gidTorneo+"' AND id_jornada = '"+gidJornada+"' AND id_juego = '"+gidJuego+"'";
-  //alert(cadena);
   actualizaReg(cadena,db,function(resultado){
     if(resultado == 'ACTUALIZADO'){
       app7.dialog.alert("Cambio de estatus satisfactorio", "AVISO");
+      gestatus_juego = 'Jugado';
+      $$('#ico_show_cedula_status').html('<i class="f7-icons">lock_fill</i>');
       }
   });
 }
 
- 
-/*
-function numJuegos(){
-  var i = 0;
-  console.log("Validando tabla");
+function showIconCierre(){
+  if(gestatus_juego == 'Por Jugar'){
+    //El estatus correspponde a "Por Jugar", se muestra el ico con el candado abierto
+    $$('#ico_show_cedula_status').html('<i class="f7-icons">lock_open_fill</i>');
+    //$("#my_password_icon").html('<i class="f7-icons">lock_open_fill</i>')
+  }
+}
+
+
+function periodo(){
+  /* El usuario da tap al número de périodo, se obtiene el localStorage correspondiente al número de périodo */
+  var periodo  = parseInt($$('#tab-periodo').text());
+  var periodoConfig = parseInt(localStorage.getItem("periodos"));
+  /* Se evalua si el número de pérido pintado en el tablero es menor que el almacenado en la configuración */
+  if(periodo < periodoConfig){
+    /* El número pintado en el tablero es menor, se puede incrementar */
+    periodo++;
+  }else{
+    periodo = 1;
+  }
+  $$('#tab-periodo').text(periodo);
+
+}
+
+function cronometro(){
+  
+  if(gbandera == 0){
+    gbandera = 1;
+    //El cronómetro está pausdado, se echa andar
+    startCronometro();
+    id = setInterval(startCronometro,1000);
+  }else{
+    gbandera = 0;
+    stopCronometro();
+  }
+}
+
+function startCronometro(parMinuto,parSegundo){
+  var stringCronometro = "";
+  var hAux = "";
+  var mAux = "";
+  var sAux = "";
+  var minutos = "";
+
+  //Se obtiene el número pintado en el tablero para el valor del cronómetro
+  stringCronometro = $$('#tab-cronometro').text();
+  //Separamos los minutos de los segundos
+  var m  = parseInt(stringCronometro.substring(0,stringCronometro.indexOf(":")));
+  var s = parseInt(stringCronometro.substring(stringCronometro.indexOf(":")+1));
+  var h = 0;
+
+  s--;
+  if (s<0){m--;s=59;}
+  //if (m<0){h--;m=59;}
+  if (m<0){
+    gbandera = 0;
+    stopCronometro();
+    periodo();
+    //El cronómetro se iguala según el valor de lo especificado en la configuración
+    stringCronometro = localStorage.getItem("minutos");
+    m  = parseInt(stringCronometro.substring(0,stringCronometro.indexOf(":")));
+    s = parseInt(stringCronometro.substring(stringCronometro.indexOf(":")+1));
+    h = 0;
+  }
+  if (h>24){h=0;}
+
+  if (s<10){sAux="0"+String(s);}else{sAux=String(s);}
+  if (m<10){mAux="0"+String(m);}else{mAux=String(m);}
+  if (h<10){hAux="0"+String(h);}else{hAux=String(h);}
+  minutos = mAux + ":" + sAux; 
+  $$('#tab-cronometro').text(minutos);
+}
+
+function stopCronometro(){
+  clearInterval(id);
+}
+
+function getJuegosReplicar(){
+  //Borra contenido de lista-juegos-replicar
+  $$('#lista-juegos-replicar').html("");
   db.transaction(function (tx){
-    var sql = 'SELECT * FROM calendario';
-    tx.executeSql(sql,[],function(tx,results){
+    var select  = "SELECT encuentro.id_torneo,encuentro.id_equipo,equipo.equ_nombre,torneo.tor_nombre,encuentro.id_jornada,encuentro.enc_locvis,calendario.cal_fecha_hora,calendario.cal_estatus,calendario.id_juego ";
+    var from    = 'FROM equipo, calendario, encuentro,torneo ';
+    var where   = "WHERE encuentro.id_sucursal = calendario.id_sucursal and encuentro.id_cliente = calendario.id_cliente and encuentro.id_torneo = calendario.id_torneo and encuentro.id_jornada = calendario.id_jornada and encuentro.id_juego = calendario.id_juego and equipo.id_sucursal = encuentro.id_sucursal and equipo.id_cliente = encuentro.id_cliente and equipo.id_torneo = encuentro.id_torneo and equipo.id_equipo = encuentro.id_equipo and equipo.id_cliente = torneo.id_cliente and torneo.id_sucursal = equipo.id_sucursal and torneo.id_torneo = equipo.id_torneo and calendario.id_cliente = '"+String(gcliente)+"' AND calendario.id_sucursal = '"+String(gsucursal)+"' AND calendario.cal_estatus = '1' ";
+    var order   = 'ORDER BY calendario.cal_fecha_hora ASC, encuentro.enc_locvis';   
+    var sql     = select + from + where + order;
+    
+    var estatus_juego = "";
+    var marcador = 0;
+    var fecha_juego = "";
+    var formatted_date = "";
+    //var nombre_equipo = "";
+    var jornada = "";
+    var estatus_juego = "";
+    var nombre_torneo  = "";
+    var marcador_string = "";
+    var nombre_visitante = "";
+    var nombre_local = "";
+    //var juego   = "";
+   
+    tx.executeSql(sql,[],function callback(tx,results){
       var registros = results.rows.length, i;
-      for(i=0; i<registros; i++){
-        console.log(results.rows.item(i).cal_fecha_hora);
+      if(registros == 0){
+        gsiHayDatos = 0;
+        app7.dialog.alert("No existen encuentros con el estatus 'Jugado', favor de cambiar el estatus de los encuentros ya concluidos", "AVISO");
+      }else{
+        gsiHayDatos = 1;
+        for(i=0; i<registros; i++){
+          // Determinar si el contador es impar o no, si es par, el recordSet corresponde a un equipo LOCAL, caso contrario es Visita y
+          // solo tomar el registro de nombre de quipo
+          //if(i%2 != 0)
+          if(i%2 != 0){
+            //Es número impar
+            //Se termina de crear la cadena para mostar el marcador de ambos equipos
+            nombre_visitante =  results.rows.item(i).equ_nombre;
+            getMarcadores(gcliente,gsucursal,results.rows.item(i).id_torneo,results.rows.item(i).id_jornada,results.rows.item(i).id_juego,results.rows.item(i).enc_locvis,nombre_visitante,'','',0,'', function(resultado){
+              //En el arreglo de "resultado", se estiene los datos del marcador, equipo y jornada
+              arr = resultado.split("|");
+              marcador = parseInt(arr[0]);
+              equipo = arr[1];
+              jornada = arr[2];
+              if (marcador == 99){
+                marcador_string += "- ?";
+              }else{
+                marcador_string +='- '+String(marcador);
+              }
+              //La sig. function, termina de concatenar la cadena para mostrar en el List, incluso también muestra el List
+              setMarcadorVisitanteReplicar(marcador_string,equipo);
+            });
+          }else{
+            // Es número par
+            // Número par, se obtiene fecha, torneo, estatus del juego, equipo local y su marcador
+            switch(results.rows.item(i).cal_estatus){
+              case '2':
+                estatus_juego = 'Ya Replicado';
+              case '1':
+                estatus_juego = 'Jugado';
+                break;
+              case '0':
+                estatus_juego = 'Por Jugar';
+                break;
+            }
+            fecha_juego = new Date(results.rows.item(i).cal_fecha_hora);
+            formatted_date = fecha_juego.getDate() + "-" + (fecha_juego.getMonth() + 1) + "-" + fecha_juego.getFullYear() + " " + fecha_juego.getHours() + ":" + fecha_juego.getMinutes();
+            nombre_local = results.rows.item(i).equ_nombre;
+            jornada = results.rows.item(i).id_jornada;
+            nombre_torneo =results.rows.item(i).tor_nombre;
+            getMarcadores(gcliente,gsucursal,results.rows.item(i).id_torneo,results.rows.item(i).id_jornada,results.rows.item(i).id_juego,results.rows.item(i).enc_locvis,nombre_local,formatted_date,nombre_torneo, i, estatus_juego, function(resultado){
+              arr = resultado.split("|");
+              marcador = parseInt(arr[0]);
+              equipo = arr[1];
+              jornada = arr[2];
+              fecha_juego = arr[3];
+              nombre_torneo = arr[4];
+              contador = arr[5];
+              estatus_juego = arr[6];
+              if (marcador == 99){
+                  marcador_string = "¿ ";
+              }else{
+                marcador_string = String(marcador) + " ";
+              }
+              setMarcadorLocal(fecha_juego,nombre_torneo,jornada,estatus_juego,equipo,contador);
+              });
+            //console.log('el marcador es '+marcador_string);
+            //Si yo pongo el console.log aqui, no imprime el valor de marcador_string, que diferencia hay? la valiable está 
+          }
+        }
       }
     });
-  },function(err){
-    console.log(err);
-    notificacion("AVISO","La tabla de torneo no pudo ser creada,favor de avisar a la oficina");
   });
-  return i;
 }
-*/
 
+function setMarcadorVisitanteReplicar(marcador_string,nombre_visitante){
+  /* Termina de concatenar la cadena "juego" para enseguida mostrarla como un elemento del componente List */
+  juego += '<div class="col row-marcadores" id="marcadoresr">'+marcador_string+'</div><div class="col" id="equipo-visitar">'+nombre_visitante+'</div></div></div></div>';
+  // Se agrega al componente LIST el juego en cuestión
+  $$('#lista-juegos-replicar').append(juego);
+}
+
+function setMarcadorLocalReplicar(formatted_date,nombre_torneo,jornada,estatus_juego,nombre_equipo,contador){
+  /* Asigna a "juego" la cadena para mostar posteriormente en la function setMarcadorVisitante el elemento del componente List */
+  var color_columna = "";
+  if(estatus_juego == 'Por Jugar'){
+    color_columna = 'row-replicar-sel-text2-2';
+  }
+  else{
+    color_columna = 'row-replicar-sel-text2';
+  }
+  juego = '<div class="block block-replicar-sel0"><div class="block block-replicar-sel1"><div class="row row-replicar-sel-text1"><div class="col" id="fecha-hora-juegor-'+String(contador)+'">'+formatted_date+'</div><div class="col" id="nombre-torneor-'+String(contador)+'">'+nombre_torneo+'</div><div class="col" id="id_jornadar-'+String(contador)+'">J-'+jornada+'</div></div><div class="row '+color_columna+'"><div class="col" id="estatus-juegor-'+String(contador)+'">'+estatus_juego+'</div></div></div><div class="block block-replicar-sel2"><div class="row row-replicar-sel-text3"><div class="col" id="equipo-localr">'+nombre_equipo+'</div>';
+}
+
+function confirma_replicar(){
+  /* Se valida si existen registros(encuentros) para replicar */
+  if(gsiHayDatos != 0 ){
+    app7.dialog.confirm('¿ Deseas continuar con el proceso de replicar datos ?','CONFIRMA', function () {
+      db.transaction(function (tx){
+        var cadenaSelect  = 'SELECT detalle_encuentro.id_cliente,detalle_encuentro.id_sucursal,detalle_encuentro.id_torneo,detalle_encuentro.id_jornada,detalle_encuentro.id_juego,detalle_encuentro.id_equipo,detalle_encuentro.enc_locvis,detalle_encuentro.id_jugador,detalle_encuentro.denc_minuto,detalle_encuentro.denc_gol,detalle_encuentro.denc_roja,detalle_encuentro.denc_amarilla ';
+        var cadenaFrom    = 'FROM detalle_encuentro, calendario ';
+        var cadenaWhere   = "WHERE detalle_encuentro.id_torneo = calendario.id_torneo AND detalle_encuentro.id_jornada = calendario.id_jornada AND detalle_encuentro.id_juego = calendario.id_juego AND calendario.cal_estatus = '1'";  
+        var cadenaReplicar = cadenaSelect+cadenaFrom+cadenaWhere;
+        tx.executeSql(cadenaReplicar,[],function callback(tx,results){
+          var cuantosx = 0;
+          var varArray = []; //{};
+          var registros = results.rows.length, i;
+          if(registros == 0){
+            app7.dialog.alert("No existen encuentros con el estatus 'JUGADO'", "AVISO");
+          }else{
+            for(w=0; w<registros; w++){
+              varArray[w] = results.rows.item(w);
+            }
+          }
+          var parvarJson = JSON.stringify(varArray);
+          //console.log(varJson);
+
+          app7.preloader.show();
+          app7.request({
+            url: 'http://futcho7.com.mx/Cedula/WebService/setrecords.php',
+            data:{varJson:parvarJson},
+            method: 'POST',
+            crossDomain: true,
+            success:function(data){
+              console.log(data);
+              var objson = JSON.parse(data);
+              if (objson.status == 0){
+                cambiarEstatusTodos(function(regreso){
+                  if(regreso=='OK'){
+                    app7.preloader.hide();
+                    app7.dialog.alert("Replica de datos exitoso", "AVISO");
+                    $$('#lista-juegos-replicar').html("");
+                    gsiHayDatos = 0;
+                  }else{
+                    alert("Existe un error");
+                  }
+                
+                });
+                
+
+              }else{
+                //app7.preloader.hide();
+                app7.dialog.alert("Se recibió el sig. mensaje al tratar de replicar los datos ..."+objson.mensaje, "AVISO");
+              }
+            },
+            error:function(error){
+            }
+          });
+          //app7.preloader.hide();
+        });
+      });
+    });
+  }
+}
+
+function cambiarEstatusTodos(callBack){
+  /* Este function se ejecuta una vez sea satisfactorio el proceso de replica, y lo que hace es cambiar el estatus
+     del juego a '2', para que no se repita el proceso más de 1 vez */
+  cadena = "UPDATE calendario SET cal_estatus = '2' WHERE cal_estatus = '1'";
+  actualizaReg(cadena,db,function(resultado){
+    if(resultado == 'ACTUALIZADO'){
+      callBack("OK");
+      }
+  });
+}
+
+function condicionesUso(){
+  mainView.router.navigate('/show-condiciones/',{animate:true});
+}
+
+function showPolitica(){
+  mainView.router.navigate('/show-politica/',{animate:true});
+}
+
+function showFirma(){
+  mainView.router.navigate('/show-firma/',{animate:true});
+}
 
  function CreaDb(){
    console.log("Entró a crear BD");
@@ -1455,10 +1764,10 @@ function numJuegos(){
   });
  }
 
- function insertaRegJson(cadena,db,contador,arreglo,callBack){
-  db.transaction(function (tx){
-    tx.executeSql(cadena);
-    callBack(contador+"|"+arreglo);
+ function insertaRegJson(parCadena,parDb,parContadorI,parContadorA,parContadorB,parContadorC,parIdTorneo,parIdEquipo,parArregloJuegos,parArregloEquipos,parArregloJugadores, callBack){
+  parDb.transaction(function (tx){
+    tx.executeSql(parCadena);
+    callBack(parContadorI+"|"+parContadorA+"|"+parContadorB+"|"+parContadorC+"|"+parIdTorneo+"|"+parIdEquipo+"|"+parArregloJuegos+"|"+parArregloEquipos+"|"+parArregloJugadores);
    },function (err){
       console.log(err);
       notificacion("AVISO","No fue posible insertar en la BD cuando se bare Json,favor de avisar a la oficina");
@@ -1534,4 +1843,20 @@ function checkNetWork() {
     console.log("Si hay internet");
     return true;
   }
+}
+
+function checkConnection() {
+  var networkState = navigator.connection.type;
+
+  var states = {};
+  states[Connection.UNKNOWN]  = 'Unknown connection';
+  states[Connection.ETHERNET] = 'Ethernet connection';
+  states[Connection.WIFI]     = 'WiFi connection';
+  states[Connection.CELL_2G]  = 'Cell 2G connection';
+  states[Connection.CELL_3G]  = 'Cell 3G connection';
+  states[Connection.CELL_4G]  = 'Cell 4G connection';
+  states[Connection.CELL]     = 'Cell generic connection';
+  states[Connection.NONE]     = 'No network connection';
+
+  alert('Connection type: ' + states[networkState]);
 }
