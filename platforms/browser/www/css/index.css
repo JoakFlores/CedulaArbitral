@@ -14,6 +14,7 @@
     --f7-navbar-bg-color: orange ;
     --f7-panel-bg-color: RGB(33,33,33);
     --f7-font-family: DS-Point, Roboto, system-ui, Noto, Helvetica, Arial, sans-serif;
+    --f7-preloader-modal-bg-color: rgba(243, 162, 11, 0.8);
   }
 
   /* Configuración para todos los botones */
@@ -198,7 +199,7 @@
 
 .block-title-cargar-juegos{
     font-weight: bold;
-    font-size: 15px;
+    font-size: 14px;
     color: green;
 }
 

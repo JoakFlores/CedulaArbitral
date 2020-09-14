@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "cordova-browser": "^6.0.0",
-    "cordova-plugin-compat": "^1.2.0"
+    "cordova-plugin-compat": "^1.2.0",
+    "jspdf": "^2.1.0"
   }
 }
