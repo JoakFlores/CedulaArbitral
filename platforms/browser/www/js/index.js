@@ -650,13 +650,18 @@ function SetCalendar(){
 }
 
 function confirma_fecha() {
-  const months = ["Ene", "Feb", "Mar","Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-  fecha_seleccionada = new Date(calendarInline.getValue());
-  date_to_pass = fecha_seleccionada.getFullYear() + "/" + (fecha_seleccionada.getMonth() + 1) + "/" + fecha_seleccionada.getDate();
-  date_to_question = fecha_seleccionada.getDate() + "-" + months[fecha_seleccionada.getMonth()] + "-" + fecha_seleccionada.getFullYear();
-  app7.dialog.confirm('¿ Deseas continuar con la carga de datos para la fecha '+date_to_question+' ?','CONFIRMA', function () {
-    cargaDatos(date_to_pass);
-  });
+  /* Se valida que ya exista configurada la cuenta, cosa contraria no podrá realizar nada */
+  if (localStorage.getItem("cuenta") != null){
+    const months = ["Ene", "Feb", "Mar","Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    fecha_seleccionada = new Date(calendarInline.getValue());
+    date_to_pass = fecha_seleccionada.getFullYear() + "/" + (fecha_seleccionada.getMonth() + 1) + "/" + fecha_seleccionada.getDate();
+    date_to_question = fecha_seleccionada.getDate() + "-" + months[fecha_seleccionada.getMonth()] + "-" + fecha_seleccionada.getFullYear();
+    app7.dialog.confirm('¿ Deseas continuar con la carga de datos para la fecha '+date_to_question+' ?','CONFIRMA', function () {
+      cargaDatos(date_to_pass);
+    });
+  }else{
+    app7.dialog.alert("Falta configurar la cuenta, favor ir al menú y selecciona la opción de 'Configuración'", "AVISO");
+  }
   
  //cargaDatos("2020/07/13");
  }

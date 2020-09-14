@@ -119,6 +119,10 @@
     margin:0;
 }
 
+.panel-menu{
+    overflow-y: auto;
+}
+
 .block-botones-pagina-settings{
     width: 30%;
     margin-left: 35%;
