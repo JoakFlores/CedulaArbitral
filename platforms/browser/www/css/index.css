@@ -32,6 +32,7 @@
 }
 
 .img_splash{
+    width: 30%;
     position: absolute;
     margin:auto;
     top:0;
