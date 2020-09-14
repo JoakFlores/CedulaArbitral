@@ -4,9 +4,10 @@
   "name": "Cedula",
   "short_name": "Cedula",
   "version": "com.cedula.app",
-  "description": "Hello World sample application that responds to the deviceready event.",
-  "author": "PhoneGap Team",
+  "description": "Aplicación para elaborar una cédula arbitral.",
+  "author": "Apps AND More",
   "icons": [],
+  "orientation": "landscape",
   "start_url": "index.html",
   "theme_color": "#2196f3"
 }
