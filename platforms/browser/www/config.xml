@@ -8,6 +8,7 @@
         Apps AND More
     </author>
     <content src="index.html" />
+    <icon src="../img/icon.png" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />

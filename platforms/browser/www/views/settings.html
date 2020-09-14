@@ -1,44 +1,39 @@
 
 <div class="page" data-name="settings">
-
-
-
-    <!-- NavBar -->
-   <div class="navbar color-theme-black">
-     <div class="navbar-bg"></div>   
-     <div class="navbar-inner">
-       <!--<div class="left sliding">  -->
-       <div class="left">
-           <a href="#" class="link back">
-           <!-- <a href="#" class="link">Left Link</a> -->
-             <i class="f7-icons">chevron_left</i>
-           </a>
-       </div>
-       <div class="title font-navbar">Configurar cuenta</div>  
-     </div>
-   </div>
+  <!-- NavBar -->
+  <div class="navbar color-theme-black">
+    <div class="navbar-bg"></div>   
+    <div class="navbar-inner sliding">
+      <!--<div class="left sliding">  -->
+      <div class="left">
+        <a href="#" class="link back">
+          <!-- <a href="#" class="link">Left Link</a> -->
+          <i class="f7-icons">chevron_left</i>
+        </a>
+      </div>
+      <div class="title font-navbar">Configurar cuenta</div>  
+    </div>
+  </div>
     
-   <div class="page-content page-settings">
-     
+  <div class="page-content page-settings">
     <div class="block">   <!-- AQUI >-->
-
-     <div class="list no-hairlines-md list-page-settings">
-       <ul>
-         <li class="item-content item-input">
-           <div class="item-inner">
-             <div class="item-title item-label">Cuenta</div>
-             <div class="item-input-wrap">
-               <input type="number" name="cuenta" id="num-cuenta" placeholder="Tú número de cuenta (4 números)">
-               <span class="input-clear-button"></span>
-             </div>
-           </div>
-         </li>
-
-         <li class="item-content item-input">
+      <div class="list no-hairlines-md list-page-settings">
+        <ul>
+          <li class="item-content item-input">
+            <div class="item-inner">
+              <div class="item-title item-label">Cuenta</div>
+              <div class="item-input-wrap">
+                <input type="number" name="cuenta" id="num-cuenta" placeholder="Tú número de cuenta (4 números)">
+                <span class="input-clear-button"></span>
+              </div>
+            </div>
+          </li>
+          
+          <li class="item-content item-input">
             <div class="item-inner">
               <div class="item-title item-label">Minutos por período</div>
               <div class="item-input-wrap">
-                <input type="number" name="minutos" id="minutos-periodo" placeholder="Duración de cada perído (MM:SS)">
+                <input type="text" name="minutos" id="minutos-periodo" placeholder="Duración de cada perído (MM:SS)">
                 <span class="input-clear-button"></span>
               </div>
             </div>
@@ -54,17 +49,15 @@
             </div>
           </li>
         </ul>
-    </div>
-
-    <div class="block block-botones-pagina-settings">
+      </div>
+      
+      <div class="block block-botones-pagina-settings">
         <div class="row">    
           <!--<button  class="col button button-fill button-round actions-close" onclick="goTo('/home/')">Cancelar</button> -->
-          <button  class="col button button-fill button-round"               onclick="configuraCuenta()">Ok</button>
-           
+          <button  class="col button button-fill button-round" onclick="configuraCuenta()">Ok</button>
         </div>
-    </div>
+      </div>
 
-  </div> <!-- AQUI >-->
-
+    </div> <!-- AQUI >-->
   </div>
 </div>
