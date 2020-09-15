@@ -446,6 +446,8 @@ function configuraCuenta(){
   var cuentastring = cuenta.toString();
   var minutos = $$('#minutos-periodo').val();
   var periodos = $$('#num-periodos').val();
+  alert(cuentastring);
+  alert(localStorage.getItem("cuenta"));
   if (cuentastring !== localStorage.getItem("cuenta")){
     /* La cuenta cambió, se debe de invocar a la API */
     //if (checkNetWork()){
