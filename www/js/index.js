@@ -447,12 +447,12 @@ function configuraCuenta(){
   var minutos = $$('#minutos-periodo').val();
   var periodos = $$('#num-periodos').val();
   if (cuentastring != localStorage.getItem("cuenta")){
-    alert("entró");
     /* La cuenta cambió, se debe de invocar a la API */
     //if (checkNetWork()){
       app7.preloader.show();
       /* En caso de que la cuenta cambió, se borran todos los registros de la BD */
       DeleteTables();
+      alert("ahi va");
       /* La cuenta, se divide por el valor correspondiente a cliente/sucursal */
       var cliente = Number(cuentastring.substring(0,2));
       var sucursal= Number(cuentastring.substring(2,4));
