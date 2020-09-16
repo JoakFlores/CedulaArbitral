@@ -6,12 +6,22 @@
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-tap-highlight" content="no" />
-
     <!-- Las sig. 4 líneas fueron copiadas de la documentación del FrameWork7 -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <!-- Color theme for statusbar (Android only) -->
     <meta name="theme-color" content="#2196f3">
+    <!-- Las sig. 10 líneas son para convertir a PWA -->
+    <meta name="author" content="Apps & More">
+    <meta name="description" content="Aplicación móvil para la generación de cédula arbitral">
+    <meta name="MobileOptimized" content="width">
+    <meta name="HandheldFriendly" content="true">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="shortcut icon" type="image/png" href="./img/cedula.png">
+    <link rel="apple-touch-ico" href="./img/cedula.png">
+    <link rel="apple-touch-startup-image" href="./img/cedula.png">
+    <meta name="apple-mobile-web-app-title" content="Mi cédula">
+    <link rel="manifest" href="./manifest.json">
 
     <!-- Sig. dos líneas copiadas de la documentación  Framework7 -->
     <!-- Path to Framework7 Library Bundle CSS -->
@@ -46,12 +56,11 @@
   <!-- Sig. dos líneas copiadas de la documentación  Framework7 -->
   <!-- Path to Framework7 Library Bundle JS-->
   <script type="text/javascript" src="js/framework7.bundle.min.js"></script>
- 
-  
   <script type="text/javascript" src="js/jspdf.min.js"></script>
   <script type="text/javascript" src="js/jspdf.plugin.autotable.min.js"></script>
   <script type="text/javascript" src="cordova.js"></script>
   <script type="text/javascript" src="js/index.js"></script>
+  <script src="script.js"></script>
   <script type="text/javascript">
     //app.initialize();
     WaitSplashScreen();

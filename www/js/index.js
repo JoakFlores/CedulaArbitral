@@ -452,7 +452,6 @@ function configuraCuenta(){
       app7.preloader.show();
       /* En caso de que la cuenta cambió, se borran todos los registros de la BD */
       DeleteTables();
-      alert("ahi va");
       /* La cuenta, se divide por el valor correspondiente a cliente/sucursal */
       var cliente = Number(cuentastring.substring(0,2));
       var sucursal= Number(cuentastring.substring(2,4));
@@ -462,6 +461,7 @@ function configuraCuenta(){
         method: 'POST',
         crossDomain: true,
         success:function(data){
+          alert("ahi va");
           app7.preloader.hide();
           var objson = JSON.parse(data);
           if (objson.mensaje == "EXITOSO"){

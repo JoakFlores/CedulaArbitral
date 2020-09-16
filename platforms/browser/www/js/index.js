@@ -446,9 +446,9 @@ function configuraCuenta(){
   var cuentastring = cuenta.toString();
   var minutos = $$('#minutos-periodo').val();
   var periodos = $$('#num-periodos').val();
-  if (cuentastring !== localStorage.getItem("cuenta")){
+  if (cuentastring != localStorage.getItem("cuenta")){
     /* La cuenta cambió, se debe de invocar a la API */
-    if (checkNetWork()){
+    //if (checkNetWork()){
       app7.preloader.show();
       /* En caso de que la cuenta cambió, se borran todos los registros de la BD */
       DeleteTables();
@@ -461,6 +461,7 @@ function configuraCuenta(){
         method: 'POST',
         crossDomain: true,
         success:function(data){
+          alert("ahi va");
           app7.preloader.hide();
           var objson = JSON.parse(data);
           if (objson.mensaje == "EXITOSO"){
@@ -493,9 +494,9 @@ function configuraCuenta(){
           }
       });
       app7.preloader.hide();
-    } else{
-      /* Si no hay red */
-    }
+    /*} else{
+      // Si no hay red 
+    }*/
   }else{
     /* No cambió la cuenta, solo se actualizan los valores de minutos,periodos en los localStorage */
     localStorage.setItem("minutos",minutos);

@@ -56,7 +56,7 @@
         "type": "image/png"
       },
       {
-        "src": "./img/favicon.png",
+        "src": "./img/icon_16.png",
         "sizes": "16x16",
         "type": "image/png"
       }
