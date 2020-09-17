@@ -92,6 +92,9 @@ var app7 = new Framework7({
     name: 'Cédula',
     // App id
     id: 'com.cedula.app',
+    input:{
+      scrollIntoViewOnFocus: 'true',
+    },
     // Enable swipe panel
     panel: {
       swipe: 'left',
