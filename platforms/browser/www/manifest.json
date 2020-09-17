@@ -4,7 +4,7 @@
     "description": "Aplicación Movil para la generación de cedulas arbitrales",
     "background_color": "#2B2B2B",
     "theme_color": "#F0DB4F",
-    "orientation": "landscape",
+    "orientation": "portrait",
     "display": "standalone",
     "start_url": "./?utm_source=web_app_manifest",
     "scope": "./",
