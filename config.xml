@@ -1,16 +1,15 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.cedula.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
     <name>Cedula</name>
-    <description>
-        Aplicación para elaborar una cédula arbitral.
-    </description>
+    <description>Aplicación para elaborar una cédula arbitral.</description>
     <author email="jfloresga@gmail.com" href="http://phonegap.com">
         Apps AND More
     </author>
     <content src="index.html" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="android-minSdkVersion" value="14" />
-    <preference name="Orientation" value="portrait" />
+    <preference name="Orientation" value="default" />
+    <preference name="Fullscreen" value="false" />
     <plugin name="cordova-plugin-battery-status" source="npm" spec="~1.2.4" />
     <plugin name="cordova-plugin-camera" source="npm" spec="~2.4.1" />
     <plugin name="cordova-plugin-media-capture" source="npm" spec="~1.4.3" />
