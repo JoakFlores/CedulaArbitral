@@ -1,0 +1,65 @@
+
+<div class="page" data-name="tablero">
+    <!-- NavBar -->
+   <div class="navbar color-theme-black">
+     <div class="navbar-bg"></div>
+     <div class="navbar-inner">
+       <!--<div class="left sliding">  -->
+       <div class="left">
+           <a href="#" class="link back">
+           <!-- <a href="#" class="link">Left Link</a> -->
+             <i class="f7-icons">chevron_left</i>
+           </a>
+       </div>
+       <div class="title font-navbar">Cédula Arbitral (TABLERO)</div>  
+     </div>
+   </div>
+
+   <div class="page-content page-tablero">
+    <div class="block block-tablero">
+        
+        <div class="row row-tablero-titulo-text1">
+            <div class="col">LOCAL</div>
+            <div class="col">&nbsp</div>
+            <div class="col">VISITA</div>
+         </div>
+
+         <div class="row row-tablero-titulo-text3">
+            <div class="col col-tablero-marcador" id="tab-goles-local" onclick = "gol('L')">10</div>
+            <div class="col col-tablero-cronometro" id="tab-cronometro" onclick = "cronometro()">25:00</div>
+            <div class="col col-tablero-marcador" id="tab-goles-visita" onclick = "gol('V')">8</div>
+         </div>
+
+         <div class="row row-tablero-titulo-text2">
+            <div class="col col-tablero-equipos" id="tab-nom-equ-local">¿¿¿¿¿¿¿</div>
+            <div class="col">&nbsp</div>
+            <div class="col col-tablero-equipos" id="tab-nom-equ-visita">???????</div>
+         </div>
+
+        <div class="row row-tablero-boton">
+            <button class="col button button-large button-fill" onclick = "cedula()">Cédula</button>
+         </div>
+
+         <div class="row row-tablero-titulo-text2">
+            <div class="col col-tablero-text-faltas">TARJETAS</div>
+            <div class="col col-tablero-text-faltas">PERÍODO</div>
+            <div class="col col-tablero-text-faltas">TARJETAS</div>
+         </div>
+
+         <div class="row row-tablero-titulo-text5">
+            <div class="col col-tablero-falta" id="tab-faltas-local" onclick = "tarjeta('L')">1</div>
+            <div class="col col-tablero-periodo" id="tab-periodo" onclick = "periodo()">1</div>
+            <div class="col col-tablero-falta" id="tab-faltas-visita" onclick = "tarjeta('V')">3</div>
+         </div>
+
+         
+
+    </div>
+
+
+     
+
+   
+  </div>
+ 
+</div>

@@ -1,0 +1,104 @@
+<div class="page" data-name="show-cedula">
+    <!-- NavBar -->
+   <div class="navbar color-theme-black">
+     <div class="navbar-bg"></div>
+     <div class="navbar-inner">
+       <!--<div class="left sliding">  -->
+       <div class="left">
+           <a href="#" class="link back">
+           <!-- <a href="#" class="link">Left Link</a> -->
+             <i class="f7-icons">chevron_left</i>
+           </a>
+       </div>
+       <div class="title font-navbar">Cédula Arbitral del Juego</div>  
+       <div class="right">
+        <a href="javascript:cerrar()" class="link" id="ico_show_cedula_status"> 
+            <i class="f7-icons">lock_fill</i>
+        </a>
+      </div>
+     </div>
+   </div>
+
+   <div class="page-content">
+
+    <div class="block block-show-cedula" id="show-cedula-datgen">
+      <div class="row">
+        <div class="col" id="show-cedula-logo"><img src="../img/LogoCte1.jpg" width="70"/></div>
+       </div>
+
+       <div class="row">
+        <div class="col" id="show-cedula-jornada">Jornada #</div> 
+        <div class="col" id="show-cedula-torneo">Torneo: 7:30PM</div> 
+       </div>
+
+       <div class="row">
+        <div class="col" id="show-cedula-fecha">Fecha/Hora del partido: 24/08/2020 19:30</div> 
+        <div class="col" id="show-cedula-arbitro">Árbitro del partido: Héctor Gómez</div> 
+       </div>
+
+       <div class="row">
+        <div class="col col-show-cedula-equipo-local" id="show-cedula-equipo-local">Equipo Local: Pumas</div> 
+        <div class="col" id="show-cedula">&nbsp</div> 
+       </div>
+    </div>
+
+
+    <div class="data-table" id="show-cedula-jugadores">
+      <table>
+        <thead class="col-encabezados-tabla">
+          <tr>
+            <th class="label-cell col-titulo-tabla">Nombre Jugador</th>
+            <th class="numeric-cell">Gol</th>
+            <th class="numeric-cell">Tarjeta Amarilla</th>
+            <th class="numeric-cell">Tarjeta Roja</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td class="label-cell">Joaquín Flores</td>
+            <td class="numeric-cell">1</td>
+            <td class="numeric-cell">&nbsp</td>
+            <td class="numeric-cell">&nbsp</td>
+          </tr>
+        </tbody>
+
+        <tbody>
+          <tr>
+            <td class="label-cell">Adán García</td>
+            <td class="numeric-cell">&nbsp</td>
+            <td class="numeric-cell">1</td>
+            <td class="numeric-cell">&nbsp</td>
+          </tr>
+        </tbody>
+
+        <tbody>
+          <tr>
+            <td class="label-cell">TOTALES</td>
+            <td class="numeric-cell">1</td>
+            <td class="numeric-cell">0</td>
+            <td class="numeric-cell">0</td>
+          </tr>
+        </tbody>
+      </table>
+   
+
+      <div class="block block-show-cedula" id="show-cedula-datgen">
+        <div class="row">
+          <div class="col col-show-cedula-equipo-local" id="show-cedula-equipo-local">Equipo Local: Pumas</div> 
+          <div class="col" id="show-cedula">&nbsp</div> 
+        </div>
+      </div>
+
+    </div>
+    <div class="block block-botones-pagina-show-cedula">
+      <div class="row">    
+        <!--<button  class="col button button-fill button-round actions-close" onclick="goTo('/home/')">Cancelar</button> -->
+        <button  class="col button button-fill button-round" onclick="imprimir()">Imprimir</button>
+         
+      </div>
+  </div>
+
+  </div>
+ 
+</div>
