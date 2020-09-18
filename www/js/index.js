@@ -466,7 +466,6 @@ function configuraCuenta(){
         method: 'POST',
         crossDomain: true,
         success:function(data){
-          alert("ahi va");
           app7.preloader.hide();
           var objson = JSON.parse(data);
           if (objson.mensaje == "EXITOSO"){
