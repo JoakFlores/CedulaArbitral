@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.cedula.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
     <name>Cedula</name>
-    <description>
-        Aplicación para elaborar una cédula arbitral.
-    </description>
+    <description>Aplicación para elaborar una cédula arbitral.</description>
     <author email="jfloresga@gmail.com" href="http://phonegap.com">
         Apps AND More
     </author>
@@ -18,5 +16,6 @@
     <allow-intent href="geo:*" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="android-minSdkVersion" value="14" />
-    <preference name="Orientation" value="portrait" />
+    <preference name="Orientation" value="default" />
+    <preference name="Fullscreen" value="false" />
 </widget>
