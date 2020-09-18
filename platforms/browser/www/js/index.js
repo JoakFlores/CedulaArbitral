@@ -94,9 +94,9 @@ var app7 = new Framework7({
     name: 'Cédula',
     // App id
     id: 'com.cedula.app',
-    input:{
+   /* input:{
       scrollIntoViewOnFocus: 'false',
-    },
+    },*/
     // Enable swipe panel
     panel: {
       swipe: 'left',
@@ -466,7 +466,6 @@ function configuraCuenta(){
         method: 'POST',
         crossDomain: true,
         success:function(data){
-          alert("ahi va");
           app7.preloader.hide();
           var objson = JSON.parse(data);
           if (objson.mensaje == "EXITOSO"){

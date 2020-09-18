@@ -6,7 +6,7 @@
         Apps AND More
     </author>
     <content src="index.html" />
-    <icon src="../img/icon.png" />
+    <icon src="../img/cedula.png" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
@@ -16,6 +16,6 @@
     <allow-intent href="geo:*" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="android-minSdkVersion" value="14" />
-    <preference name="Orientation" value="default" />
-    <preference name="Fullscreen" value="false" />
+    <preference name="Orientation" value="landscape" />
+    <preference name="Fullscreen" value="true" />
 </widget>
