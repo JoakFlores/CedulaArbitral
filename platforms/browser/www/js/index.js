@@ -1,6 +1,8 @@
 var $$ = Dom7;
 
 var db = openDatabase('futcho','1.0',"Base de Datos para el uso de la cédula",2 * 1021 * 1024);
+//var db = openDatabaseSync('futcho','1.0',"Base de Datos para el uso de la cédula",2 * 1021 * 1024);
+
 /*
 const fs = require('fs')
 const request = require('request')
@@ -1803,93 +1805,162 @@ function showFirma(){
 
  function CreaDb(){
    /* Elimina Tablas */
-   db.transaction(function (tx){
-    tx.executeSql('DROP TABLE torneo');
-   },function(err){
-     console.log(err);
-     notificacion("AVISO","La tabla torneo no pudo ser eliminada,favor de avisar a la oficina");
-   });
 
-   setTimeout(function(){ db.transaction(function (tx){
+   eliminaTorneo(function(torneo){
+    eliminaEquipo(function(equipo){
+      eliminaJugador(function(jugador){
+        eliminaCalendario(function(calendario){
+          eliminaEncuentro(function(encuentro){
+            eliminaDetalle(function(detalle){
+              creaTorneo(function(detalle){
+                creaEquipo(function(detalle){
+                  creaJugador(function(detalle){
+                    creaCalendario(function(detalle){
+                      creaEncuentro(function(detalle){
+                        creaDetalle(function(detalle){
+   
+                        });
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+function eliminaTorneo(callBack){
+  db.transaction(function (tx){
+    tx.executeSql('DROP TABLE torneo');
+    },function(err){
+      console.log(err);
+      notificacion("AVISO","La tabla torneo no pudo ser eliminada,favor de avisar a la oficina");
+    });
+    callBack("OK");
+}
+
+function eliminaEquipo(callBack){
+  db.transaction(function (tx){
     tx.executeSql('DROP TABLE equipo');
    },function(err){
      console.log(err);
      notificacion("AVISO","La tabla equipo no pudo ser eliminada,favor de avisar a la oficina");
-   }); }, 5000);
+   });
+    callBack("OK");
+}
 
-   setTimeout(function(){ db.transaction(function (tx){
+function eliminaJugador(callBack){
+  db.transaction(function (tx){
     tx.executeSql('DROP TABLE jugador');
    },function(err){
      console.log(err);
      notificacion("AVISO","La tabla jugador no pudo ser eliminada,favor de avisar a la oficina");
-   }); }, 5000);
+   });
+    callBack("OK");
+}
 
-  setTimeout(function(){ db.transaction(function (tx){
+function eliminaCalendario(callBack){
+  db.transaction(function (tx){
     tx.executeSql('DROP TABLE calendario');
    },function(err){
      console.log(err);
      notificacion("AVISO","La tabla calendario no pudo ser eliminada,favor de avisar a la oficina");
-   }); }, 5000);
+   });
+    callBack("OK");
+}
 
-   setTimeout(function(){ db.transaction(function (tx){
+function eliminaEncuentro(callBack){
+  db.transaction(function (tx){
     tx.executeSql('DROP TABLE encuentro');
    },function(err){
      console.log(err);
      notificacion("AVISO","La tabla encuentro no pudo ser eliminada,favor de avisar a la oficina");
-   }); }, 5000);
+   });
+    callBack("OK");
+}
 
-   
-   setTimeout(function(){ db.transaction(function (tx){
+function eliminaDetalle(callBack){
+  db.transaction(function (tx){
     tx.executeSql('DROP TABLE detalle_encuentro');
    },function(err){
      console.log(err);
      notificacion("AVISO","La tabla detalle_encuentro no pudo ser eliminada,favor de avisar a la oficina");
-   }); }, 5000);
+   });
+    callBack("OK");
+}
 
-   setTimeout(function(){db.transaction(function (tx){
+function creaTorneo(callBack){
+  db.transaction(function (tx){
     tx.executeSql('CREATE TABLE IF NOT EXISTS torneo (id_cliente,id_sucursal,id_torneo,tor_nombre)');
    },function(err){
      console.log(err);
      notificacion("AVISO","La tabla de torneo no pudo ser creada,favor de avisar a la oficina");
-   }); }, 5000);
+   });
+   callBack("OK");
+}
 
-   setTimeout(function(){db.transaction(function (tx){
+function creaEquipo(callBack){
+  db.transaction(function (tx){
     tx.executeSql('CREATE TABLE IF NOT EXISTS equipo (id_cliente,id_sucursal,id_torneo,id_equipo,equ_nombre, PRIMARY KEY(id_cliente,id_sucursal,id_torneo,id_equipo))');
    },function(err){
      console.log(err);
      notificacion("AVISO","La tabla de equipo no pudo ser creada,favor de avisar a la oficina");
-   }); }, 5000);
+   });
+   callBack("OK");
+}
 
-   setTimeout(function(){db.transaction(function (tx){
+function creaJugador(callBack){
+  db.transaction(function (tx){
     tx.executeSql('CREATE TABLE IF NOT EXISTS jugador (id_cliente,id_sucursal,id_torneo,id_equipo,id_jugador,jug_nombre,jug_representante,jug_playera,jug_foto, PRIMARY KEY(id_cliente,id_sucursal,id_torneo,id_equipo))');
    },function(err){
      console.log(err);
      notificacion("AVISO","La tabla de jugador no pudo ser creada,favor de avisar a la oficina");
-   }); }, 5000);
-   
+   });
+   callBack("OK");
+}
 
-   setTimeout(function(){db.transaction(function (tx){
+function creaJugador(callBack){
+  db.transaction(function (tx){
+    tx.executeSql('CREATE TABLE IF NOT EXISTS jugador (id_cliente,id_sucursal,id_torneo,id_equipo,id_jugador,jug_nombre,jug_representante,jug_playera,jug_foto, PRIMARY KEY(id_cliente,id_sucursal,id_torneo,id_equipo))');
+   },function(err){
+     console.log(err);
+     notificacion("AVISO","La tabla de jugador no pudo ser creada,favor de avisar a la oficina");
+   });
+   callBack("OK");
+}
+
+function creaCalendario(callBack){
+  db.transaction(function (tx){
     tx.executeSql('CREATE TABLE IF NOT EXISTS calendario (id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,cal_fecha_hora,arbitro,cal_estatus,cal_default,cal_penales)');
    },function(err){
      console.log(err);
      notificacion("AVISO","La tabla de calendario no pudo ser creada,favor de avisar a la oficina");
-   }); }, 5000);
+   });
+   callBack("OK");
+}
 
-   setTimeout(function(){ db.transaction(function (tx){
+function creaEncuentro(callBack){
+  db.transaction(function (tx){
     tx.executeSql('CREATE TABLE IF NOT EXISTS encuentro (id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis)');
    },function(err){
      console.log(err);
      notificacion("AVISO","La tabla de encuentro no pudo ser creada,favor de avisar a la oficina");
-   }); }, 5000);
+   });
+   callBack("OK");
+}
 
-   setTimeout(function(){  db.transaction(function (tx){
+function creaDetalle(callBack){
+  db.transaction(function (tx){
     tx.executeSql('CREATE TABLE IF NOT EXISTS detalle_encuentro (id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_minuto INTEGER PRIMARY KEY AUTOINCREMENT,denc_gol,denc_roja,denc_amarilla)');
    },function(err){
      console.log(err);
      notificacion("AVISO","La tabla detalle_encuentro no pudo ser creada,favor de avisar a la oficina");
-   }); }, 5000);
-
-   
+   });
+   callBack("OK");
+}
 
 /*
    db.transaction(function (tx){
