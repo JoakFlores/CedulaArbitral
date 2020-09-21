@@ -127,6 +127,7 @@
 .block-botones-pagina-settings{
     width: 30%;
     margin-left: 35%;
+    margin-top: 5px;
 }
 
 /* Texto del NavBar "Inicio" */
@@ -167,7 +168,7 @@
 
 .page-tablero{
     background: black;
-    margin-top:55px;
+    margin-top: 40px;
     padding-top: 20px;
 }
 
@@ -194,7 +195,8 @@
 .list-page-settings{
 	width: 70%;
     margin-left: 30px;
-    margin-top: 5px;
+    margin-top: 1px;
+    margin-bottom: 2px;
 }
 
 .toolbar-inner{
@@ -349,7 +351,7 @@
 }
 
 .col-tablero-marcador{
-    font-size: 80px;
+    font-size: 65px;
     color: RGB(0,255,0);
     border: 0;
     font-family: DS-Point;

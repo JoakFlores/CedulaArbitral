@@ -606,6 +606,7 @@ function cargaDatos(fecha){
             var jug_foto    =  jugadores[c].jug_foto;
             cadena = "insert into jugador(id_cliente,id_sucursal,id_torneo,id_equipo,id_jugador,jug_nombre,jug_representante,jug_playera,jug_foto) values('"+String(cliente)+"','"+String(sucursal)+"','"+String(id_torneo)+"','"+String(id_equipo)+"','"+String(id_jugador)+"','"+jug_nombre+"','"+jug_capitan+"','"+String(jug_playera)+"','"+jug_foto+"')";
             insertaReg(cadena,db,function(resultado3){
+              console.log(cadena);
               //alert(resultado);
             });
           }
@@ -1913,17 +1914,7 @@ function creaEquipo(callBack){
 
 function creaJugador(callBack){
   db.transaction(function (tx){
-    tx.executeSql('CREATE TABLE IF NOT EXISTS jugador (id_cliente,id_sucursal,id_torneo,id_equipo,id_jugador,jug_nombre,jug_representante,jug_playera,jug_foto, PRIMARY KEY(id_cliente,id_sucursal,id_torneo,id_equipo))');
-   },function(err){
-     console.log(err);
-     notificacion("AVISO","La tabla de jugador no pudo ser creada,favor de avisar a la oficina");
-   });
-   callBack("OK");
-}
-
-function creaJugador(callBack){
-  db.transaction(function (tx){
-    tx.executeSql('CREATE TABLE IF NOT EXISTS jugador (id_cliente,id_sucursal,id_torneo,id_equipo,id_jugador,jug_nombre,jug_representante,jug_playera,jug_foto, PRIMARY KEY(id_cliente,id_sucursal,id_torneo,id_equipo))');
+    tx.executeSql('CREATE TABLE IF NOT EXISTS jugador (id_cliente,id_sucursal,id_torneo,id_equipo,id_jugador,jug_nombre,jug_representante,jug_playera,jug_foto, PRIMARY KEY(id_cliente,id_sucursal,id_torneo,id_equipo,id_jugador))');
    },function(err){
      console.log(err);
      notificacion("AVISO","La tabla de jugador no pudo ser creada,favor de avisar a la oficina");
