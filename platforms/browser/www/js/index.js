@@ -1,20 +1,8 @@
 var $$ = Dom7;
 
 var db = openDatabase('futcho','1.0',"Base de Datos para el uso de la cédula",2 * 1021 * 1024);
-//var db = openDatabaseSync('futcho','1.0',"Base de Datos para el uso de la cédula",2 * 1021 * 1024);
 
-/*
-const fs = require('fs')
-const request = require('request')
 
-const download = (url, path, callback) => {
-  request.head(url, (err, res, body) => {
-    request(url)
-      .pipe(fs.createWriteStream(path))
-      .on('close', callback)
-  })
-}
-*/
 
 
 var gcuenta           = "";
@@ -180,11 +168,71 @@ var app7 = new Framework7({
   });
   var mainView = app7.views.create('.view-main');
 
+$$('#minutos-periodo').on('focus', function() {
+    mainView.hideToolbar();
+ });
+ 
+$$('#minutos-periodo').on('blur', function() {
+   mainView.showToolbar();
+ });
+
 $$(document).on('page:init', '.page[data-name="home"]', function (e){
  ChecaCuenta();
 });
 
 $$(document).on('page:init', '.page[data-name="settings"]', function (e){
+  var pickerMinutos = app7.picker.create({
+    inputEl: '#minutos-periodo',
+      rotateEffect: true,
+      renderToolbar: function () {
+        return '<div class="toolbar">' +
+          '<div class="toolbar-inner">' +
+            '<div class="left">' +
+              '<a href="#" class="link sheet-close popover-close">Ok</a>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      },
+      formatValue: function (values, displayValues) {
+        return values[0] + ':' + values[1];
+      },
+      
+      cols: [
+        {
+          textAlign: 'left',
+          values: ('1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59').split(' ')
+        },
+        // Divider
+        {
+          divider: true,
+          content: ':'
+        },
+        {
+          values: ('00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59').split(' ')
+        },
+      ]
+  });
+
+  var pickerPeriodos = app7.picker.create({
+    inputEl: '#num-periodos',
+      rotateEffect: true,
+      renderToolbar: function () {
+        return '<div class="toolbar">' +
+          '<div class="toolbar-inner">' +
+            '<div class="left">' +
+              '<a href="#" class="link sheet-close popover-close">Ok</a>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      },
+      cols: [
+        {
+          textAlign: 'left',
+          values: ('1 2 3 4 5 6 7 8 9').split(' ')
+        },
+      ]
+  });
+  
   ChecaSettings();
  });
 
@@ -446,12 +494,18 @@ function notificacion(titulo,mensaje){
 
 
 function configuraCuenta(){
+  var lserror = 0;
   /* Se valida si hay cambio en el número de cuenta, si es verdadero, se llama a la API */
   var cuenta  = $$('#num-cuenta').val();
   var cuentastring = cuenta.toString();
   var minutos = $$('#minutos-periodo').val();
   var periodos = $$('#num-periodos').val();
-  if (cuentastring != localStorage.getItem("cuenta")){
+  /* Validaciones */
+  if (cuentastring.length != 4){
+    app7.dialog.alert("La cuenta debe de tener 4 números, vuelva a intentarlo", "AVISO");
+    lserror = 1;
+  }
+  if (cuentastring != localStorage.getItem("cuenta") && lserror == 0){
     /* La cuenta cambió, se debe de invocar a la API */
     //if (checkNetWork()){
       app7.preloader.show();
@@ -460,8 +514,9 @@ function configuraCuenta(){
       /* La cuenta, se divide por el valor correspondiente a cliente/sucursal */
       var cliente = Number(cuentastring.substring(0,2));
       var sucursal= Number(cuentastring.substring(2,4));
-      app7.request({
-        url: 'http://futcho7.com.mx/Cedula/WebService/configcuenta.php',
+      app7.request({   /* PWA */
+        /*url: 'http://futcho7.com.mx/Cedula/WebService/configcuenta.php',*/
+        url: 'https://cedula.futcho7.com.mx/WebService/configcuenta.php',
         data:{id_cliente:cliente,id_sucursal:sucursal},
         method: 'POST',
         crossDomain: true,
@@ -502,10 +557,12 @@ function configuraCuenta(){
       // Si no hay red 
     }*/
   }else{
-    /* No cambió la cuenta, solo se actualizan los valores de minutos,periodos en los localStorage */
-    localStorage.setItem("minutos",minutos);
-    localStorage.setItem("periodos",periodos);
-    app7.dialog.alert("Actualización exitosa", "AVISO");
+    if (lserror == 0){
+       /* No cambió la cuenta, solo se actualizan los valores de minutos,periodos en los localStorage, los cuales no contiene error */
+      localStorage.setItem("minutos",minutos);
+      localStorage.setItem("periodos",periodos);
+      app7.dialog.alert("Actualización exitosa", "AVISO");
+    }
   }
 }
 
@@ -521,8 +578,9 @@ function cargaDatos(fecha){
     var numjuegos = 0;
     varfecha = fecha; 
     app7.preloader.show();
-    app7.request({
-      url: 'http://futcho7.com.mx/Cedula/WebService/getrecords.php',
+    app7.request({ /* PWA */
+      /* url: 'http://futcho7.com.mx/Cedula/WebService/getrecords.php', */
+      url: 'https://cedula.futcho7.com.mx/WebService/getrecords.php',
       data:{id_cliente:cliente,id_sucursal:sucursal,fecha:varfecha},
       method: 'POST',
       crossDomain: true,
@@ -1488,9 +1546,11 @@ gPdf.text(40,gPdf.lastAutoTable.finalY + 10,"_____________________");
 
 gPdf.text(7,gPdf.lastAutoTable.finalY + 13,"CAPITÁN LOCAL");
 gPdf.text(44,gPdf.lastAutoTable.finalY + 13,"CAPITÁN VISITA");
+//gPdf.save("prueba.pdf");
 
-//console.log(gPdf.output().length);
-gPdf.save("prueba.pdf");
+gPdf.output('dataurlnewwindow');
+//gPdf.output('datauri');
+gPdf.autoPrint();
 
 
 }
@@ -1805,36 +1865,26 @@ function showFirma(){
 
  function CreaDb(){
    /* Elimina Tablas */
+   /* Cuando la app es instalada, no existen aún las tablas, no hay razón para querer eliminarlas */
+   creaTorneo(function(detalle){
+    creaEquipo(function(detalle){
+      creaJugador(function(detalle){
+        creaCalendario(function(detalle){
+          creaEncuentro(function(detalle){
+            creaDetalle(function(detalle){
 
-   eliminaTorneo(function(torneo){
-    eliminaEquipo(function(equipo){
-      eliminaJugador(function(jugador){
-        eliminaCalendario(function(calendario){
-          eliminaEncuentro(function(encuentro){
-            eliminaDetalle(function(detalle){
-              creaTorneo(function(detalle){
-                creaEquipo(function(detalle){
-                  creaJugador(function(detalle){
-                    creaCalendario(function(detalle){
-                      creaEncuentro(function(detalle){
-                        creaDetalle(function(detalle){
-   
-                        });
-                      });
-                    });
-                  });
-                });
-              });
             });
           });
         });
       });
     });
   });
-
+ }  
+    
 function eliminaTorneo(callBack){
   db.transaction(function (tx){
-    tx.executeSql('DROP TABLE torneo');
+    var torneo = 'DROP TABLE torneo';
+    tx.executeSql(torneo);
     },function(err){
       console.log(err);
       notificacion("AVISO","La tabla torneo no pudo ser eliminada,favor de avisar a la oficina");
@@ -1951,87 +2001,6 @@ function creaDetalle(callBack){
    });
    callBack("OK");
 }
-
-/*
-   db.transaction(function (tx){
-    tx.executeSql('DROP TABLE equipo');
-   },function(err){
-     console.log(err);
-     notificacion("AVISO","La tabla equipo no pudo ser eliminada,favor de avisar a la oficina");
-   });
-
-   db.transaction(function (tx){
-    tx.executeSql('DROP TABLE jugador');
-   },function(err){
-     console.log(err);
-     notificacion("AVISO","La tabla jugador no pudo ser eliminada,favor de avisar a la oficina");
-   });
-
-   db.transaction(function (tx){
-    tx.executeSql('DROP TABLE calendario');
-   },function(err){
-     console.log(err);
-     notificacion("AVISO","La tabla calendario no pudo ser eliminada,favor de avisar a la oficina");
-   });
-
-   db.transaction(function (tx){
-    tx.executeSql('DROP TABLE encuentro');
-   },function(err){
-     console.log(err);
-     notificacion("AVISO","La tabla encuentro no pudo ser eliminada,favor de avisar a la oficina");
-   });
-
-   db.transaction(function (tx){
-    tx.executeSql('DROP TABLE detalle_encuentro');
-   },function(err){
-     console.log(err);
-     notificacion("AVISO","La tabla detalle_encuentro no pudo ser eliminada,favor de avisar a la oficina");
-   });
-
-
-   db.transaction(function (tx){
-     tx.executeSql('CREATE TABLE IF NOT EXISTS torneo (id_cliente,id_sucursal,id_torneo,tor_nombre)');
-    },function(err){
-      console.log(err);
-      notificacion("AVISO","La tabla de torneo no pudo ser creada,favor de avisar a la oficina");
-    });
-
-    db.transaction(function (tx){
-      tx.executeSql('CREATE TABLE IF NOT EXISTS equipo (id_cliente,id_sucursal,id_torneo,id_equipo,equ_nombre, PRIMARY KEY(id_cliente,id_sucursal,id_torneo,id_equipo))');
-     },function(err){
-       console.log(err);
-       notificacion("AVISO","La tabla de equipo no pudo ser creada,favor de avisar a la oficina");
-     });
-
-     db.transaction(function (tx){
-      tx.executeSql('CREATE TABLE IF NOT EXISTS jugador (id_cliente,id_sucursal,id_torneo,id_equipo,id_jugador,jug_nombre,jug_representante,jug_playera,jug_foto, PRIMARY KEY(id_cliente,id_sucursal,id_torneo,id_equipo))');
-     },function(err){
-       console.log(err);
-       notificacion("AVISO","La tabla de jugador no pudo ser creada,favor de avisar a la oficina");
-     });
-
-     db.transaction(function (tx){
-      tx.executeSql('CREATE TABLE IF NOT EXISTS calendario (id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,cal_fecha_hora,arbitro,cal_estatus,cal_default,cal_penales)');
-     },function(err){
-       console.log(err);
-       notificacion("AVISO","La tabla de calendario no pudo ser creada,favor de avisar a la oficina");
-     });
-
-     db.transaction(function (tx){
-      tx.executeSql('CREATE TABLE IF NOT EXISTS encuentro (id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis)');
-     },function(err){
-       console.log(err);
-       notificacion("AVISO","La tabla de encuentro no pudo ser creada,favor de avisar a la oficina");
-     });
-
-     db.transaction(function (tx){
-      tx.executeSql('CREATE TABLE IF NOT EXISTS detalle_encuentro (id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis,id_jugador,denc_minuto INTEGER PRIMARY KEY AUTOINCREMENT,denc_gol,denc_roja,denc_amarilla)');
-     },function(err){
-       console.log(err);
-       notificacion("AVISO","La tabla detalle_encuentro no pudo ser creada,favor de avisar a la oficina");
-     });
-     */
- }
 
  function DeleteTables(){
   /*var db = openDatabase('futcho','1.0',"Base de Datos para el uso de la cédula",2 * 1021 * 1024);*/

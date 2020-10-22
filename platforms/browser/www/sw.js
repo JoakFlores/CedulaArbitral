@@ -11,7 +11,6 @@ const CACHE_NAME = 'v1_cache_cedula',
     './img/icon_16.png',
     ',/img/Splash.png',
     ',/img/cedula.png',
-   
     './js/framework7.bundle.min.js',
     './js/jspdf.min.js',
     './js/jspdf.plugin.autotable.min.js',
@@ -30,6 +29,7 @@ self.addEventListener('install', e => {
       .catch(err => console.log('Falló registro de cache', err))
   )
 })
+
 
 //una vez que se instala el SW, se activa y busca los recursos para hacer que funcione sin conexión
 self.addEventListener('activate', e => {

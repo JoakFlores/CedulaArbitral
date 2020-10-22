@@ -9,13 +9,23 @@
     padding: 0;
 }
 
+@font-face {
+    font-family: "font-tablero";
+    src: url("../fonts/DS-POINT.TTF");  /* Give relative path to your css file.*/
+}
+
 
 :root {
     --f7-navbar-bg-color: orange ;
     --f7-panel-bg-color: RGB(33,33,33);
-    --f7-font-family: DS-Point, Roboto, system-ui, Noto, Helvetica, Arial, sans-serif;
+    --f7-font-family: 'DS-POINT', 'Roboto', system-ui, Noto, Helvetica, Arial, sans-serif;
     --f7-preloader-modal-bg-color: rgba(243, 162, 11, 0.8);
   }
+
+.root.ios{
+    --f7-navbar-bg-color: orange ;
+    --f7-font-family: 'DS-POINT', 'Roboto', system-ui, Noto, Helvetica, Arial, sans-serif;
+}
 
   /* Configuración para todos los botones */
 .button-fill{
@@ -151,9 +161,11 @@
     background: url('../img/BackGroundConfig.jpg');
     background-size: 100% 90%;
     background-repeat: no-repeat;
-    margin-top:55px;
+    margin-top: 55px;
     background-position: center top;
     padding-top: 20px;
+    /* overscroll-behavior: none; */
+    position: static;
 }
 
 .page-ced-seleccionar{
@@ -354,7 +366,8 @@
     font-size: 65px;
     color: RGB(0,255,0);
     border: 0;
-    font-family: DS-Point;
+    font-family: font-tablero;
+    /*font-family: DS-Point;*/
 }
 
 .col-tablero-cronometro{
@@ -364,7 +377,8 @@
     border-color: white;
     border-style: solid;
     border-radius: 5px;
-    font-family: DS-Point;
+    font-family: font-tablero;
+    /* font-family: DS-Point; */
 
 }
 
@@ -410,13 +424,15 @@
 .col-tablero-falta{
     color:yellow;
     border: 0;
-    font-family: DS-Point;
+    font-family: font-tablero;
+    /*font-family: DS-Point;*/
 }
 
 .col-tablero-periodo{
     color: red;
     border: 0;
-    font-family: DS-Point;
+    font-family: font-tablero;
+    /*font-family: DS-Point;*/
 }
 
 .row-tablero-titulo-text5{
