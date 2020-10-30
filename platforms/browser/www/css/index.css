@@ -14,6 +14,11 @@
     src: url("../fonts/DS-POINT.TTF");  /* Give relative path to your css file.*/
 }
 
+@font-face {
+    font-family: "font-liga";
+    src: url("../fonts/CollegiateheavyoutlineMedium-B0yx.ttf");  /* Give relative path to your css file.*/
+}
+
 
 :root {
     --f7-navbar-bg-color: orange ;
@@ -114,6 +119,15 @@
     margin-top: 0px;
     margin-bottom: 0px;
 }
+
+.texto-nomliga{
+    margin-left: 95px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    font-family: font-liga;
+    font-size: 15px;
+}
+
 
 .nombre-sede{
     font-size: 15px;
@@ -443,7 +457,7 @@
 
 .row-tablero-boton{
     width:20%;
-    margin: auto;
+    margin:auto;
     margin-bottom: 20px;
 }
 

@@ -8,6 +8,7 @@ var db = openDatabase('futcho','1.0',"Base de Datos para el uso de la cédula",2
 var gcuenta           = "";
 var gcliente          = 0;
 var gsucursal         = 0;
+var glogotipo         = "";
 
 var calendarInline;
 
@@ -168,6 +169,7 @@ var app7 = new Framework7({
   });
   var mainView = app7.views.create('.view-main');
 
+/*
 $$('#minutos-periodo').on('focus', function() {
     mainView.hideToolbar();
  });
@@ -175,7 +177,7 @@ $$('#minutos-periodo').on('focus', function() {
 $$('#minutos-periodo').on('blur', function() {
    mainView.showToolbar();
  });
-
+*/
 $$(document).on('page:init', '.page[data-name="home"]', function (e){
  ChecaCuenta();
 });
@@ -232,7 +234,7 @@ $$(document).on('page:init', '.page[data-name="settings"]', function (e){
         },
       ]
   });
-  
+
   ChecaSettings();
  });
 
@@ -414,7 +416,6 @@ $$(document).on('page:init', '.page[data-name="show-cedula"]', function (f){
   gtotRowPdfLocal   = []; // Array involucrando todos los mvtos. del equipo Local para exportar a PDF
   gtotRowPdfVisita  = []; // Array involucrando todos los mvtos. del equipo Visita para exportar a PDF
   grenPdf           = 0;
-  
   getDatosJuegoCedula(function(d){
     getJugadoresCedula('L', function (f){
       getJugadoresCedula('V', function(e){
@@ -466,8 +467,15 @@ function ChecaCuenta(){
     gcuenta = localStorage.getItem("cuenta");
     gcliente = Number(gcuenta.substring(0,2));
     gsucursal= Number(gcuenta.substring(2,4));
+    glogotipo= localStorage.getItem("logotipo");
     var nomSucursal = localStorage.getItem("nomSucursal");
-    $$('#nomSede').text(nomSucursal);
+    var nomCliente = localStorage.getItem("nomCliente");
+     //Borra contenido de lista-jugadores
+    $$('#datos-cte-sede').html("");
+    var cadena = '<p id="nomLiga" class="texto-nomliga">'+nomCliente+'</p><p class="texto-sede">Sede:</p><p id="nomSede" class="nombre-sede">'+nomSucursal+'</p>';
+    $$('#datos-cte-sede').append(cadena);
+    //$$('#nomSede').text(nomSucursal);
+    //$$('#nomLiga').text(nomCliente);
   }
 }
 
@@ -528,12 +536,14 @@ function configuraCuenta(){
             /* Se almacenan en variables nombre del cliente y de la sucursal */
             var nomCliente  = objson.datos[0].cli_nombre;
             var nomSucursal = objson.datos[0].suc_nombre;
+            var cliLogo     = objson.datos[0].cli_logo;
             /* Se almacenan en localStorage: cuenta,nombre de cliente, nombre de sucursal, minutos y periodos */
             localStorage.setItem("cuenta",cuentastring);
             localStorage.setItem("nomCliente",nomCliente);
             localStorage.setItem("nomSucursal",nomSucursal);
             localStorage.setItem("minutos",minutos);
             localStorage.setItem("periodos",periodos);
+            localStorage.setItem("logotipo",cliLogo);
 
             /*
             var url = 'http://futcho7.com.mx/Cedula/Imagenes/logocte'+String(cliente)+'.jpg'
@@ -1019,7 +1029,7 @@ function getJugadoresGoles(locvis){
         if (goles == null){
           goles = 0;
         }
-        cadena = '<div class="block block-jugador-gol"><div class="row"><div class="col col-jugador-datos-gol" id="jugador-id-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto"><img src="data:image/png;base64, '+foto+'" width="60"/></div><div class="col col-icon-suma-gol" id="suma-gol" onclick = "insertaGol('+id_jugador+')"><img src="../img/plus-circle.png"/></div><div class="col col-icon-balon-gol" id="ico-balon"><img src="../img/Balon.ico" width="60"/></div><div class="col col-numgoles-gol" id="goles-'+id_jugador+'">'+String(goles)+'</div><div class="col col-icon-suma-gol" id="resta-gol" onclick = "eliminaGol('+id_jugador+')"><img src="../img/minus-circle.png"/></div></div></div>';
+        var cadena = '<div class="block block-jugador-gol"><div class="row"><div class="col col-jugador-datos-gol" id="jugador-id-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto"><img src="data:image/png;base64, '+foto+'" width="60"/></div><div class="col col-icon-suma-gol" id="suma-gol" onclick = "insertaGol('+id_jugador+')"><img src="../img/plus-circle.jpg"/></div><div class="col col-icon-balon-gol" id="ico-balon"><img src="../img/Balon.ico" width="60"/></div><div class="col col-numgoles-gol" id="goles-'+id_jugador+'">'+String(goles)+'</div><div class="col col-icon-suma-gol" id="resta-gol" onclick = "eliminaGol('+id_jugador+')"><img src="../img/minus-circle.jpg"/></div></div></div>';
         $$('#lista-jugadores').append(cadena);
       }
       
@@ -1187,7 +1197,7 @@ function getJugadoresTarjetas(locvis){
         }
         if (rojas > 0){
           //El jugador tiene tarjeta roja, se muestra el ico correspondiente a la tarjeta roja
-          cadena_tarjetas = '<div class="block block-jugador-tarjeta"><div class="row"><div class="col col-jugador-datos-tarjeta" id="jugador-id-tarjeta-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto-tarjeta"><img src="data:image/png;base64, '+foto2+'" width="60"/></div><div class="col col-icon-tarjeta-amarilla" id="ico-tarjeta-amarilla"><img src="../img/tarjeta_amarilla.jpg" width="60"/></div><div class="col col-numtarjeta-amarilla" id="tarjetas-amarillas-'+id_jugador+'">'+String(amarillas)+'</div><div class="col col-icon-suma-tarjeta" id="suma-tarjeta" onclick = "insertaTarjeta('+id_jugador+')"><img src="../img/plus-circle.jpg"/></div><div class="col col-icon-suma-tarjeta" id="resta-amarilla" onclick = "eliminaTarjeta('+id_jugador+')"><img src="../img/minus-circle.jpg"/></div><div class="col col-icon-tarjeta-roja" id="ico-tarjeta-roja-'+id_jugador+'" onclick = "tarjetaRoja('+id_jugador+')"><img src="../img/tarjeta_roja.jpg" width="55"/></div></div></div>';
+          cadena_tarjetas = '<div class="block block-jugador-tarjeta"><div class="row"><div class="col col-jugador-datos-tarjeta" id="jugador-id-tarjeta-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto-tarjeta"><img src="data:image/png;base64, '+foto2+'" width="60"/></div><div class="col col-icon-tarjeta-amarilla" id="ico-tarjeta-amarilla"><img src="../img/tarjeta_amarilla.jpg" width="60"/></div><div class="col col-numtarjeta-amarilla" id="tarjetas-amarillas-'+id_jugador+'">'+String(amarillas)+'</div><div class="col col-icon-suma-tarjeta" id="suma-tarjeta" onclick = "insertaTarjeta('+id_jugador+')"><img src="../img/plus-circle.jpg"/></div><div class="col col-icon-suma-tarjeta" id="resta-amarilla" onclick = "eliminaTarjeta('+id_jugador+')"><img src="../img/minus-circle.jpg"/></div><div class="col col-icon-tarjeta-roja" id="ico-tarjeta-roja-'+id_jugador+'" onclick = "tarjetaRoja('+id_jugador+')"><img src="../img/tarjeta_roja.png" width="55"/></div></div></div>';
         }else{
           //El jugador no tiene rojas, se muestra el ico correspondiente a la tarjeta bca.
           cadena_tarjetas = '<div class="block block-jugador-tarjeta"><div class="row"><div class="col col-jugador-datos-tarjeta" id="jugador-id-tarjeta-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto-tarjeta"><img src="data:image/png;base64, '+foto2+'" width="60"/></div><div class="col col-icon-tarjeta-amarilla" id="ico-tarjeta-amarilla"><img src="../img/tarjeta_amarilla.jpg" width="60"/></div><div class="col col-numtarjeta-amarilla" id="tarjetas-amarillas-'+id_jugador+'">'+String(amarillas)+'</div><div class="col col-icon-suma-tarjeta" id="suma-tarjeta" onclick = "insertaTarjeta('+id_jugador+')"><img src="../img/plus-circle.jpg"/></div><div class="col col-icon-suma-tarjeta" id="resta-amarilla" onclick = "eliminaTarjeta('+id_jugador+')"><img src="../img/minus-circle.jpg"/></div><div class="col col-icon-tarjeta-roja" id="ico-tarjeta-roja-'+id_jugador+'" onclick = "tarjetaRoja('+id_jugador+')"><img src="../img/tarjeta_bco.jpg" width="55"/></div></div></div>';
@@ -1289,7 +1299,7 @@ function tarjetaRoja(idJugador){
         eliminaReg(cadena,db,function(resultado){
           if(resultado == 'ELIMINADO'){
             /* Se cambia el ico por bco.*/
-            $$('#ico-tarjeta-roja-'+String(idJugador)).html('<img src="../img/tarjeta_bco.png" width="55"/>');
+            $$('#ico-tarjeta-roja-'+String(idJugador)).html('<img src="../img/tarjeta_bco." width="55"/>');
           }
         });
       }else{
@@ -1330,17 +1340,43 @@ function cedula(){
 function getDatosJuegoCedula(callBack){
    //Borra contenido del Block
    $$('#show-cedula-datgen').html("");
-   var datgenerales = ' <div class="row"><div class="col" id="show-cedula-logo"><img src="../img/LogoCte1.jpg" width="70"/></div></div><div class="row"><div class="col" id="show-cedula-jornada">Jornada # '+gidJornada+'</div><div class="col" id="show-cedula-torneo">Torneo: '+gnomTorneo+'</div></div><div class="row"><div class="col" id="show-cedula-fecha">Fecha/Hora del partido: '+gfechaHoraJuego+'</div> <div class="col" id="show-cedula-arbitro">Árbitro del partido: '+gnomArbitro+'</div></div><div class="row"><div class="col col-show-cedula-equipo-local" id="show-cedula-equipo-local">Equipo Local: '+gnomEquipoLocal+'</div><div class="col" id="show-cedula">&nbsp</div></div>';
-   $$('#show-cedula-datgen').append(datgenerales);
-   /* Las sig. líneas, inicia a llenar archivo PDF */
-   gPdf.text(12,5,"Jornada # "+gidJornada);
-   gPdf.text(35,5,"Torneo: "+gnomTorneo);
-   gPdf.text(12,8,"Fecha/Hora del partido: "+gfechaHoraJuego);
-   gPdf.text(12,11,"Árbitro del partido: "+gnomArbitro);
-   gPdf.text(5,15,"Equipo Local: "+gnomEquipoLocal);
-   grenPdf = 15; // número de renglón apartir del cual debe de incrementar según número de filas en tablas para exportar al PDF
-   callBack("YA");
-  }
+  /* Se obtiene imagen de la liga del cliente para ser mostrada en la cédula */
+/*
+  db.transaction(function (tx){
+    var select  = "SELECT logo ";
+    var from    = 'FROM cliente ';
+    var sql     = select + from;
+    tx.executeSql(sql,[],function callback(tx,results){
+      var reglogo = results.rows.length, i;
+      for(ii=0; ii<reglogo; ii++){
+        logoimg = results.rows.item(ii).logo;
+        /* Una vez obtenida la imagen del logo, se arma el encabezado(datos generales) 
+        var datgenerales = ' <div class="row"><div class="col" id="show-cedula-logo"><img src="data:image/png;base64, '+logoimg+'" width="70"/></div></div><div class="row"><div class="col" id="show-cedula-jornada">Jornada # '+gidJornada+'</div><div class="col" id="show-cedula-torneo">Torneo: '+gnomTorneo+'</div></div><div class="row"><div class="col" id="show-cedula-fecha">Fecha/Hora del partido: '+gfechaHoraJuego+'</div> <div class="col" id="show-cedula-arbitro">Árbitro del partido: '+gnomArbitro+'</div></div><div class="row"><div class="col col-show-cedula-equipo-local" id="show-cedula-equipo-local">Equipo Local: '+gnomEquipoLocal+'</div><div class="col" id="show-cedula">&nbsp</div></div>';
+        $$('#show-cedula-datgen').append(datgenerales);
+        /* Las sig. líneas, inicia a llenar archivo PDF 
+        gPdf.text(12,5,"Jornada # "+gidJornada);
+        gPdf.text(35,5,"Torneo: "+gnomTorneo);
+        gPdf.text(12,8,"Fecha/Hora del partido: "+gfechaHoraJuego);
+        gPdf.text(12,11,"Árbitro del partido: "+gnomArbitro);
+        gPdf.text(5,15,"Equipo Local: "+gnomEquipoLocal);
+        grenPdf = 15; // número de renglón apartir del cual debe de incrementar según número de filas en tablas para exportar al PDF
+        callBack("YA");
+      }
+    });
+  });
+  */
+  
+  var datgenerales = ' <div class="row"><div class="col" id="show-cedula-logo"><img src="data:image/png;base64, '+glogotipo+'" width="70"/></div></div><div class="row"><div class="col" id="show-cedula-jornada">Jornada # '+gidJornada+'</div><div class="col" id="show-cedula-torneo">Torneo: '+gnomTorneo+'</div></div><div class="row"><div class="col" id="show-cedula-fecha">Fecha/Hora del partido: '+gfechaHoraJuego+'</div> <div class="col" id="show-cedula-arbitro">Árbitro del partido: '+gnomArbitro+'</div></div><div class="row"><div class="col col-show-cedula-equipo-local" id="show-cedula-equipo-local">Equipo Local: '+gnomEquipoLocal+'</div><div class="col" id="show-cedula">&nbsp</div></div>';
+  $$('#show-cedula-datgen').append(datgenerales);
+  /* Las sig. líneas, inicia a llenar archivo PDF */
+  gPdf.text(12,5,"Jornada # "+gidJornada);
+  gPdf.text(35,5,"Torneo: "+gnomTorneo);
+  gPdf.text(12,8,"Fecha/Hora del partido: "+gfechaHoraJuego);
+  gPdf.text(12,11,"Árbitro del partido: "+gnomArbitro);
+  gPdf.text(5,15,"Equipo Local: "+gnomEquipoLocal);
+  grenPdf = 15; // número de renglón apartir del cual debe de incrementar según número de filas en tablas para exportar al PDF
+  callBack("YA");
+}
 
 function getJugadoresCedula(locvisced, callBack){
   if(locvisced == 'L'){
@@ -1484,87 +1520,58 @@ function getJugadoresCedula(locvisced, callBack){
 }
 
 function imprimir(){
-  /*
-  var logo_url = "../img/LogoCte1.jpeg";
-  getImgFromUrl(logo_url, function (img) {
-    gPdf.addImage(img, 'JPEG', 3, 3, 20, 20);
+  var logoimg = 'data:image/png;base64, '+glogotipo;
+  gPdf.addImage(logoimg,"JPEG", 1 ,2 ,10,10, undefined, 'FAST', 0);
+
+  gPdf.autoTable({
+    columnStyles: {  0: { halign: 'left', fontSize:7, cellWidth: 36} , 1: { halign: 'center', fontSize:7, cellWidth: 8}, 2: { halign: 'center', fontSize:7, cellWidth: 14}, 3: { halign: 'center', fontSize:7, cellWidth: 10} },  
+    head: [['Nombre Jugador', 'Gol', 'Amarilla', 'Roja']],
+    body: gtotRowPdfLocal,
+    theme:'grid',
+    tableWidth: 68,
+    margin:2,
+    startY:17,
+    headStyles: { halign: 'center', fontSize: 6, fillColor: [215,215,215], textColor: [0,0,0]},
   });
-*/
 
-//var img = image();
-//img.src = "../img/tarjeta_roja.png";
-//var imgData = btoa(img);
-//console.log(imgData);
-var imgData = 'data:image/png;base64,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';
-gPdf.addImage(imgData,"JPG", 1 ,2 ,10,10, undefined, 'FAST', 0);
-
-//img.src = $$('#show-cedula-logo');
+  gPdf.text(5,gPdf.lastAutoTable.finalY + 5,"Equipo Visita: "+gnomEquipoVisita);
 
 
-/*
-var file    = "../img/LogoCte1.jpg";
-var reader  = new FileReader();
-reader.onloadend = function () {
-  imgData = reader.result;
+  gPdf.autoTable({
+    columnStyles: {  0: { halign: 'left', fontSize:7, cellWidth: 36} , 1: { halign: 'center', fontSize:7, cellWidth: 8}, 2: { halign: 'center', fontSize:7, cellWidth: 14}, 3: { halign: 'center', fontSize:7, cellWidth: 10} },  
+    head: [['Nombre Jugador', 'Gol', 'Amarilla', 'Roja']],
+    body: gtotRowPdfVisita,
+    theme:'grid',
+    tableWidth: 68,
+    margin:2,
+    startY: gPdf.lastAutoTable.finalY + 7,
+    headStyles: { halign: 'center', fontSize: 6, fillColor: [215,215,215], textColor: [0,0,0]},
+  });
+
+  gPdf.text(3,gPdf.lastAutoTable.finalY + 10,"_____________________");
+  gPdf.text(40,gPdf.lastAutoTable.finalY + 10,"_____________________");
+
+  gPdf.text(7,gPdf.lastAutoTable.finalY + 13,"CAPITÁN LOCAL");
+  gPdf.text(44,gPdf.lastAutoTable.finalY + 13,"CAPITÁN VISITA");
+
+  var currentdate = new Date(); 
+  var datetime = "Fecha Imp: " + currentdate.getDate() + "/"
+                  + (currentdate.getMonth()+1)  + "/" 
+                  + currentdate.getFullYear() + " @ "  
+                  + currentdate.getHours() + ":"  
+                  + currentdate.getMinutes() + ":" 
+                  + currentdate.getSeconds();
+
+  gPdf.text(16,gPdf.lastAutoTable.finalY + 17,datetime);
+  gPdf.text(20,gPdf.lastAutoTable.finalY + 25,"");
+
+
+  //gPdf.save("prueba.pdf");
+
+  gPdf.output('dataurlnewwindow');
+  //gPdf.output('datauri');
+  gPdf.autoPrint();
 }
-if (file) {
-  reader.readAsDataURL(file);
-} else {
-  alert("no hay");
-}
-
-gPdf.addImage(imgData, 'JPEG', 5, 5, 12, 15);
-*/
-
-gPdf.autoTable({
-  columnStyles: {  0: { halign: 'left', fontSize:7, cellWidth: 36} , 1: { halign: 'center', fontSize:7, cellWidth: 8}, 2: { halign: 'center', fontSize:7, cellWidth: 14}, 3: { halign: 'center', fontSize:7, cellWidth: 10} },  
-  head: [['Nombre Jugador', 'Gol', 'Amarilla', 'Roja']],
-  body: gtotRowPdfLocal,
-  theme:'grid',
-  tableWidth: 68,
-  margin:2,
-  startY:17,
-  headStyles: { halign: 'center', fontSize: 6, fillColor: [215,215,215], textColor: [0,0,0]},
-});
-
-gPdf.text(5,gPdf.lastAutoTable.finalY + 5,"Equipo Visita: "+gnomEquipoVisita);
-
-
-gPdf.autoTable({
-  columnStyles: {  0: { halign: 'left', fontSize:7, cellWidth: 36} , 1: { halign: 'center', fontSize:7, cellWidth: 8}, 2: { halign: 'center', fontSize:7, cellWidth: 14}, 3: { halign: 'center', fontSize:7, cellWidth: 10} },  
-  head: [['Nombre Jugador', 'Gol', 'Amarilla', 'Roja']],
-  body: gtotRowPdfVisita,
-  theme:'grid',
-  tableWidth: 68,
-  margin:2,
-  startY: gPdf.lastAutoTable.finalY + 7,
-  headStyles: { halign: 'center', fontSize: 6, fillColor: [215,215,215], textColor: [0,0,0]},
-});
-
-gPdf.text(3,gPdf.lastAutoTable.finalY + 10,"_____________________");
-gPdf.text(40,gPdf.lastAutoTable.finalY + 10,"_____________________");
-
-gPdf.text(7,gPdf.lastAutoTable.finalY + 13,"CAPITÁN LOCAL");
-gPdf.text(44,gPdf.lastAutoTable.finalY + 13,"CAPITÁN VISITA");
-//gPdf.save("prueba.pdf");
-
-gPdf.output('dataurlnewwindow');
-//gPdf.output('datauri');
-gPdf.autoPrint();
-
-
-}
-
-function getImgFromUrl(logo_url, callback) {
-  var img = new Image();
-  img.src = logo_url;
-  img.onload = function () {
-      callback(img);
-  };
-} 
-
-
-
 
 function cerrar(){
   if(gestatus_juego == 'Por Jugar'){

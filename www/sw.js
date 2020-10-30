@@ -9,8 +9,20 @@ const CACHE_NAME = 'v1_cache_cedula',
     './css/replicar.css',
     './css/about.css',
     './img/icon_16.png',
-    ',/img/Splash.png',
-    ',/img/cedula.png',
+    './img/Splash.png',
+    './img/cedula.png',
+    './img/BackGroundCedSel.jpg',
+    './img/BackGroundDefault.jpg',
+    './img/BackGroundConfig.jpg',
+    './img/BackGroundAbout.jpg',
+    './img/BackGroundGol.jpg',
+    './img/BackGroundFalta.jpg',
+    './img/Balon.ico',
+    './img/plus-circle.jpg',
+    './img/minus-circle.jpg',
+    './img/tarjeta_roja.png',
+    './img/tarjeta_bco.jpg',
+    './img/tarjeta_amarilla.jpg',
     './js/framework7.bundle.min.js',
     './js/jspdf.min.js',
     './js/jspdf.plugin.autotable.min.js',
@@ -23,6 +35,7 @@ self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
+        console.log("Opened cache")
         return cache.addAll(urlsToCache)
           .then(() => self.skipWaiting())
       })
