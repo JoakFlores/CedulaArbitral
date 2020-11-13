@@ -40,6 +40,7 @@ var gPdf = new jsPDF({
   unit: "mm",
   format: [110, 76]
 });
+var geliminar         = true;
 
 
 var app = {
@@ -178,6 +179,8 @@ $$('#minutos-periodo').on('blur', function() {
    mainView.showToolbar();
  });
 */
+
+
 $$(document).on('page:init', '.page[data-name="home"]', function (e){
  ChecaCuenta();
 });
@@ -406,11 +409,12 @@ $$(document).on('page:init', '.page[data-name="tarjetas"]', function (f){
 });
 
 $$(document).on('page:init', '.page[data-name="show-cedula"]', function (f){
-  /* Se inicializa nuevamente dicha variable GLOBAL para exportar a PDF */
+  /* Se inicializa nuevamente dicha variable GLOBAL para exportar a PDF 
   gPdf = new jsPDF({
     unit: "mm",
-    format: [110, 76]
+    format: [124, 76] //Tenia 110, 76
   });
+  */
   gPdf.setFontSize(7);
   growPdf           = []; //Array individual Filas correspondientes a la cédula árbitral para ser exportadas a PDF
   gtotRowPdfLocal   = []; // Array involucrando todos los mvtos. del equipo Local para exportar a PDF
@@ -420,7 +424,6 @@ $$(document).on('page:init', '.page[data-name="show-cedula"]', function (f){
     getJugadoresCedula('L', function (f){
       getJugadoresCedula('V', function(e){
         showIconCierre(); // Muestra el ico correspondiente según el estatus del juego
-  
       });
     });
   });
@@ -515,13 +518,14 @@ function configuraCuenta(){
   }
   if (cuentastring != localStorage.getItem("cuenta") && lserror == 0){
     /* La cuenta cambió, se debe de invocar a la API */
-    //if (checkNetWork()){
+    if (checkNetConnection()){
       app7.preloader.show();
       /* En caso de que la cuenta cambió, se borran todos los registros de la BD */
       DeleteTables();
       /* La cuenta, se divide por el valor correspondiente a cliente/sucursal */
       var cliente = Number(cuentastring.substring(0,2));
       var sucursal= Number(cuentastring.substring(2,4));
+
       app7.request({   /* PWA */
         /*url: 'http://futcho7.com.mx/Cedula/WebService/configcuenta.php',*/
         url: 'https://cedula.futcho7.com.mx/WebService/configcuenta.php',
@@ -563,9 +567,9 @@ function configuraCuenta(){
           }
       });
       app7.preloader.hide();
-    /*} else{
-      // Si no hay red 
-    }*/
+    } else{
+      app7.dialog.alert("No existe conexión a internet.", "AVISO");
+    }
   }else{
     if (lserror == 0){
        /* No cambió la cuenta, solo se actualizan los valores de minutos,periodos en los localStorage, los cuales no contiene error */
@@ -578,9 +582,15 @@ function configuraCuenta(){
 
 function cargaDatos(fecha){
   gjuegosCargados = 0;
-  /* OJO, DeleteTables se tiene que eliminar de aqui una vez terminado el desarrollo */
-  DeleteTables();
-  if (checkNetWork()){
+  //Se valida si el check para eliminar datos está activo
+  var checkbox_elimina_datos = document.querySelector('#checkbox-eliminar');
+  if (checkbox_elimina_datos.checked){
+    DeleteTables();
+  }else{
+    eliminaJuegos();
+  }
+
+  if (checkNetConnection()){
     /* La cuenta, se divide por el valor correspondiente a cliente/sucursal */
     var cuentastring = localStorage.getItem("cuenta");
     var cliente = Number(cuentastring.substring(0,2));
@@ -589,7 +599,7 @@ function cargaDatos(fecha){
     varfecha = fecha; 
     app7.preloader.show();
     app7.request({ /* PWA */
-      /* url: 'http://futcho7.com.mx/Cedula/WebService/getrecords.php', */
+       /*url: 'http://futcho7.com.mx/Cedula/WebService/getrecords.php', */
       url: 'https://cedula.futcho7.com.mx/WebService/getrecords.php',
       data:{id_cliente:cliente,id_sucursal:sucursal,fecha:varfecha},
       method: 'POST',
@@ -615,7 +625,7 @@ function cargaDatos(fecha){
     });
     //app7.preloader.hide();
   }else{
-    /* Si no hay red */
+    app7.dialog.alert("No existe conexión a internet.", "AVISO");
   }
 }
 
@@ -674,8 +684,6 @@ function cargaDatos(fecha){
             var jug_foto    =  jugadores[c].jug_foto;
             cadena = "insert into jugador(id_cliente,id_sucursal,id_torneo,id_equipo,id_jugador,jug_nombre,jug_representante,jug_playera,jug_foto) values('"+String(cliente)+"','"+String(sucursal)+"','"+String(id_torneo)+"','"+String(id_equipo)+"','"+String(id_jugador)+"','"+jug_nombre+"','"+jug_capitan+"','"+String(jug_playera)+"','"+jug_foto+"')";
             insertaReg(cadena,db,function(resultado3){
-              console.log(cadena);
-              //alert(resultado);
             });
           }
         }
@@ -1026,6 +1034,10 @@ function getJugadoresGoles(locvis){
         jugador = "# "+results.rows.item(ii).jug_playera+" "+results.rows.item(ii).jug_nombre;
         foto = results.rows.item(ii).jug_foto;
         goles = results.rows.item(ii).goles
+        /* Si el jugador es = a comodín, se pone como foto de jugador, el logotipo de la liga */
+        if (id_jugador == 999){
+          foto = glogotipo;
+        }
         if (goles == null){
           goles = 0;
         }
@@ -1195,6 +1207,10 @@ function getJugadoresTarjetas(locvis){
         if (rojas == null){
           rojas = 0;
         }
+        /* Si el jugador es = a comodín, se pone como foto de jugador, el logotipo de la liga */
+        if (id_jugador == 999){
+          foto2 = glogotipo;
+        }
         if (rojas > 0){
           //El jugador tiene tarjeta roja, se muestra el ico correspondiente a la tarjeta roja
           cadena_tarjetas = '<div class="block block-jugador-tarjeta"><div class="row"><div class="col col-jugador-datos-tarjeta" id="jugador-id-tarjeta-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto-tarjeta"><img src="data:image/png;base64, '+foto2+'" width="60"/></div><div class="col col-icon-tarjeta-amarilla" id="ico-tarjeta-amarilla"><img src="../img/tarjeta_amarilla.jpg" width="60"/></div><div class="col col-numtarjeta-amarilla" id="tarjetas-amarillas-'+id_jugador+'">'+String(amarillas)+'</div><div class="col col-icon-suma-tarjeta" id="suma-tarjeta" onclick = "insertaTarjeta('+id_jugador+')"><img src="../img/plus-circle.jpg"/></div><div class="col col-icon-suma-tarjeta" id="resta-amarilla" onclick = "eliminaTarjeta('+id_jugador+')"><img src="../img/minus-circle.jpg"/></div><div class="col col-icon-tarjeta-roja" id="ico-tarjeta-roja-'+id_jugador+'" onclick = "tarjetaRoja('+id_jugador+')"><img src="../img/tarjeta_roja.png" width="55"/></div></div></div>';
@@ -1299,7 +1315,7 @@ function tarjetaRoja(idJugador){
         eliminaReg(cadena,db,function(resultado){
           if(resultado == 'ELIMINADO'){
             /* Se cambia el ico por bco.*/
-            $$('#ico-tarjeta-roja-'+String(idJugador)).html('<img src="../img/tarjeta_bco." width="55"/>');
+            $$('#ico-tarjeta-roja-'+String(idJugador)).html('<img src="../img/tarjeta_bco.jpg" width="55"/>');
           }
         });
       }else{
@@ -1340,31 +1356,6 @@ function cedula(){
 function getDatosJuegoCedula(callBack){
    //Borra contenido del Block
    $$('#show-cedula-datgen').html("");
-  /* Se obtiene imagen de la liga del cliente para ser mostrada en la cédula */
-/*
-  db.transaction(function (tx){
-    var select  = "SELECT logo ";
-    var from    = 'FROM cliente ';
-    var sql     = select + from;
-    tx.executeSql(sql,[],function callback(tx,results){
-      var reglogo = results.rows.length, i;
-      for(ii=0; ii<reglogo; ii++){
-        logoimg = results.rows.item(ii).logo;
-        /* Una vez obtenida la imagen del logo, se arma el encabezado(datos generales) 
-        var datgenerales = ' <div class="row"><div class="col" id="show-cedula-logo"><img src="data:image/png;base64, '+logoimg+'" width="70"/></div></div><div class="row"><div class="col" id="show-cedula-jornada">Jornada # '+gidJornada+'</div><div class="col" id="show-cedula-torneo">Torneo: '+gnomTorneo+'</div></div><div class="row"><div class="col" id="show-cedula-fecha">Fecha/Hora del partido: '+gfechaHoraJuego+'</div> <div class="col" id="show-cedula-arbitro">Árbitro del partido: '+gnomArbitro+'</div></div><div class="row"><div class="col col-show-cedula-equipo-local" id="show-cedula-equipo-local">Equipo Local: '+gnomEquipoLocal+'</div><div class="col" id="show-cedula">&nbsp</div></div>';
-        $$('#show-cedula-datgen').append(datgenerales);
-        /* Las sig. líneas, inicia a llenar archivo PDF 
-        gPdf.text(12,5,"Jornada # "+gidJornada);
-        gPdf.text(35,5,"Torneo: "+gnomTorneo);
-        gPdf.text(12,8,"Fecha/Hora del partido: "+gfechaHoraJuego);
-        gPdf.text(12,11,"Árbitro del partido: "+gnomArbitro);
-        gPdf.text(5,15,"Equipo Local: "+gnomEquipoLocal);
-        grenPdf = 15; // número de renglón apartir del cual debe de incrementar según número de filas en tablas para exportar al PDF
-        callBack("YA");
-      }
-    });
-  });
-  */
   
   var datgenerales = ' <div class="row"><div class="col" id="show-cedula-logo"><img src="data:image/png;base64, '+glogotipo+'" width="70"/></div></div><div class="row"><div class="col" id="show-cedula-jornada">Jornada # '+gidJornada+'</div><div class="col" id="show-cedula-torneo">Torneo: '+gnomTorneo+'</div></div><div class="row"><div class="col" id="show-cedula-fecha">Fecha/Hora del partido: '+gfechaHoraJuego+'</div> <div class="col" id="show-cedula-arbitro">Árbitro del partido: '+gnomArbitro+'</div></div><div class="row"><div class="col col-show-cedula-equipo-local" id="show-cedula-equipo-local">Equipo Local: '+gnomEquipoLocal+'</div><div class="col" id="show-cedula">&nbsp</div></div>';
   $$('#show-cedula-datgen').append(datgenerales);
@@ -1520,6 +1511,34 @@ function getJugadoresCedula(locvisced, callBack){
 }
 
 function imprimir(){
+  /* Se valida si el total de renglones(grenPdf) es a mayor a 63 para re-ajustar el tamaño de la hoja del PDF a exportar */
+  if(grenPdf>63){
+    var ldif = (grenPdf - 63)/8;
+    var zz = 0;
+    var lhight = 110;
+    for(zz=0; zz<ldif; zz++){
+      lhight = lhight + 7;
+    }
+    /* Se inicializa nuevamente dicha variable GLOBAL para exportar a PDF */
+    gPdf = new jsPDF({
+      unit: "mm",
+      format: [lhight, 76] //Tenia 110, 76
+    });
+  }else{
+    /* Se inicializa nuevamente dicha variable GLOBAL para exportar a PDF */
+    gPdf = new jsPDF({
+    unit: "mm",
+    format: [110, 76]
+    });
+  }
+  gPdf.setFontSize(7);
+  /* Las sig. líneas, inicia a llenar archivo PDF */
+  gPdf.text(12,5,"Jornada # "+gidJornada);
+  gPdf.text(35,5,"Torneo: "+gnomTorneo);
+  gPdf.text(12,8,"Fecha/Hora del partido: "+gfechaHoraJuego);
+  gPdf.text(12,11,"Árbitro del partido: "+gnomArbitro);
+  gPdf.text(5,15,"Equipo Local: "+gnomEquipoLocal);
+
   var logoimg = 'data:image/png;base64, '+glogotipo;
   gPdf.addImage(logoimg,"JPEG", 1 ,2 ,10,10, undefined, 'FAST', 0);
 
@@ -1806,39 +1825,43 @@ function confirma_replicar(){
             }
           }
           var parvarJson = JSON.stringify(varArray);
-          //console.log(varJson);
+          if (checkNetConnection()){
+            app7.preloader.show();
+            app7.request({ /* PWA */
+              /*url: 'http://futcho7.com.mx/Cedula/WebService/setrecords.php',*/
+              url: 'https://futcho7.com.mx/Cedula/WebService/setrecords.php', 
+              data:{varJson:parvarJson},
+              method: 'POST',
+              crossDomain: true,
+              success:function(data){
+                console.log(data);
+                var objson = JSON.parse(data);
+                if (objson.status == 0){
+                  cambiarEstatusTodos(function(regreso){
+                    if(regreso=='OK'){
+                      app7.preloader.hide();
+                      app7.dialog.alert("Replica de datos exitoso", "AVISO");
+                      $$('#lista-juegos-replicar').html("");
+                      gsiHayDatos = 0;
+                    }else{
+                      alert("Existe un error");
+                    }
+                  
+                  });
+                  
 
-          app7.preloader.show();
-          app7.request({
-            url: 'http://futcho7.com.mx/Cedula/WebService/setrecords.php',
-            data:{varJson:parvarJson},
-            method: 'POST',
-            crossDomain: true,
-            success:function(data){
-              console.log(data);
-              var objson = JSON.parse(data);
-              if (objson.status == 0){
-                cambiarEstatusTodos(function(regreso){
-                  if(regreso=='OK'){
-                    app7.preloader.hide();
-                    app7.dialog.alert("Replica de datos exitoso", "AVISO");
-                    $$('#lista-juegos-replicar').html("");
-                    gsiHayDatos = 0;
-                  }else{
-                    alert("Existe un error");
-                  }
-                
-                });
-                
-
-              }else{
-                //app7.preloader.hide();
-                app7.dialog.alert("Se recibió el sig. mensaje al tratar de replicar los datos ..."+objson.mensaje, "AVISO");
+                }else{
+                  app7.preloader.hide();
+                  app7.dialog.alert("Se recibió el sig. mensaje al tratar de replicar los datos ..."+objson.mensaje, "AVISO");
+                }
+              },
+              error:function(error){
               }
-            },
-            error:function(error){
-            }
-          });
+            });
+          }else{
+            app7.dialog.alert("No existe conexión a internet.", "AVISO");
+          }
+          
           //app7.preloader.hide();
         });
       });
@@ -1951,7 +1974,7 @@ function eliminaDetalle(callBack){
 
 function creaTorneo(callBack){
   db.transaction(function (tx){
-    tx.executeSql('CREATE TABLE IF NOT EXISTS torneo (id_cliente,id_sucursal,id_torneo,tor_nombre)');
+    tx.executeSql('CREATE TABLE IF NOT EXISTS torneo (id_cliente,id_sucursal,id_torneo,tor_nombre, PRIMARY KEY(id_cliente,id_sucursal,id_torneo))');
    },function(err){
      console.log(err);
      notificacion("AVISO","La tabla de torneo no pudo ser creada,favor de avisar a la oficina");
@@ -1981,7 +2004,7 @@ function creaJugador(callBack){
 
 function creaCalendario(callBack){
   db.transaction(function (tx){
-    tx.executeSql('CREATE TABLE IF NOT EXISTS calendario (id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,cal_fecha_hora,arbitro,cal_estatus,cal_default,cal_penales)');
+    tx.executeSql('CREATE TABLE IF NOT EXISTS calendario (id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,cal_fecha_hora,arbitro,cal_estatus,cal_default,cal_penales, PRIMARY KEY(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego))');
    },function(err){
      console.log(err);
      notificacion("AVISO","La tabla de calendario no pudo ser creada,favor de avisar a la oficina");
@@ -1991,7 +2014,7 @@ function creaCalendario(callBack){
 
 function creaEncuentro(callBack){
   db.transaction(function (tx){
-    tx.executeSql('CREATE TABLE IF NOT EXISTS encuentro (id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis)');
+    tx.executeSql('CREATE TABLE IF NOT EXISTS encuentro (id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis, PRIMARY KEY(id_cliente,id_sucursal,id_torneo,id_jornada,id_juego,id_equipo,enc_locvis))');
    },function(err){
      console.log(err);
      notificacion("AVISO","La tabla de encuentro no pudo ser creada,favor de avisar a la oficina");
@@ -2009,9 +2032,126 @@ function creaDetalle(callBack){
    callBack("OK");
 }
 
+function eliminaJuegos(){
+  /* Elimina los encuentros que están en estatus "Por Jugar" (cal_estatus = 0) */
+    db.transaction(function (tx){
+    var select= 'SELECT a.id_torneo, a.id_jornada, a.id_juego, b.id_equipo ';
+    var from  = 'FROM calendario a, encuentro b ';
+    var where = "WHERE a.cal_estatus = '0' AND a.id_torneo = b.id_torneo AND a.id_jornada = b.id_jornada AND a.id_juego = b.id_juego";
+    var sql   = select+from+where;
+    var z = 0;
+    var var_id_torneo   = 0;
+    var var_id_jornada  = 0;
+    var var_id_juego    = 0;
+    var var_id_equipo   = 0;
+    tx.executeSql(sql,[],function callback(tx,results){
+      var registros = results.rows.length, i;
+      for(z=0; z<registros; z++){
+        var_id_torneo   = results.rows.item(z).id_torneo;
+        var_id_jornada  = results.rows.item(z).id_jornada;
+        var_id_juego    = results.rows.item(z).id_juego;
+        var_id_equipo   = results.rows.item(z).id_equipo;
+        eliminaJuegos_detalle(var_id_torneo,var_id_jornada,var_id_juego,function(detalle){
+          var result1 = detalle;
+          eliminaJuegos_jugador(var_id_torneo,var_id_equipo,function(jugador){
+            var resulta2 = jugador;
+            eliminaJuegos_encuentro(var_id_torneo,var_id_jornada, var_id_juego,function(encuentro){
+              var resulta2 = encuentro;
+              eliminaJuegos_calendario(var_id_torneo,var_id_jornada, var_id_juego,function(calendario){
+                var resulta2 = calendario;
+                eliminaJuegos_equipo(var_id_torneo,var_id_equipo,function(equipo){
+                  var resulta2 = equipo;
+                });
+              });
+            });
+          });
+        });
+      }
+      callBack("OK");
+    },function(err){
+      notificacion("AVISO","No fue posible obtener registros con estatus 'pendiente de jugar',favor de avisar a la oficina");
+      })
+  });
+}
+
+function eliminaJuegos_jugador(torneo,equipo,callBack){
+/* Elimina registros de la tabla jugador, según parámetros recibidos */
+  db.transaction(function (tx){
+  var select= 'DELETE ';
+  var from  = 'FROM jugador ';
+  var where = "WHERE id_torneo   = '"+String(torneo)+"' AND id_equipo = '"+String(equipo)+"'";
+  var sql   = select+from+where;
+  tx.executeSql(sql,[],function callback(tx,results){
+    callBack("ok");
+  },function(err){
+    notificacion("AVISO","No fue posible eliminar registros(PENDIENTE POR JUGAR) de la tabla jugador,favor de avisar a la oficina");
+    })
+  });
+}
+
+function eliminaJuegos_detalle(torneo,jornada,juego,callBack){
+  /* Elimina registros de la tabla detalle_encuentro, según parámetros recibidos */
+    db.transaction(function (tx){
+    var select= 'DELETE ';
+    var from  = 'FROM detalle_encuentro ';
+    var where = "WHERE id_torneo   = '"+String(torneo)+"' AND id_jornada = '"+String(jornada)+"' AND id_juego = '"+String(juego)+"'";
+    var sql   = select+from+where;
+    tx.executeSql(sql,[],function callback(tx,results){
+      callBack("ok");
+    },function(err){
+      notificacion("AVISO","No fue posible eliminar registros(PENDIENTE POR JUGAR) de la tabla detalle_encuentro,favor de avisar a la oficina");
+      })
+    });
+  }
+
+function eliminaJuegos_encuentro(torneo,jornada,juego,callBack){
+  /* Elimina registros de la tabla encuentro, según parámetros recibidos */
+    db.transaction(function (tx){
+    var select= 'DELETE ';
+    var from  = 'FROM encuentro ';
+    var where = "WHERE id_torneo   = '"+String(torneo)+"' AND id_jornada = '"+String(jornada)+"' AND id_juego = '"+String(juego)+"'";
+    var sql   = select+from+where;
+    tx.executeSql(sql,[],function callback(tx,results){
+      callBack("ok");
+    },function(err){
+      notificacion("AVISO","No fue posible eliminar registros(PENDIENTE POR JUGAR) de la tabla encuentro,favor de avisar a la oficina");
+      })
+    });
+  }
+
+function eliminaJuegos_calendario(torneo,jornada,juego,callBack){
+  /* Elimina registros de la tabla calendario, según parámetros recibidos */
+    db.transaction(function (tx){
+    var select= 'DELETE ';
+    var from  = 'FROM calendario ';
+    var where = "WHERE id_torneo   = '"+String(torneo)+"' AND id_jornada = '"+String(jornada)+"' AND id_juego = '"+String(juego)+"'";
+    var sql   = select+from+where;
+    tx.executeSql(sql,[],function callback(tx,results){
+      callBack("ok");
+    },function(err){
+      notificacion("AVISO","No fue posible eliminar registros(PENDIENTE POR JUGAR) de la tabla calendario,favor de avisar a la oficina");
+      })
+    });
+}
+
+function eliminaJuegos_equipo(torneo,equipo,callBack){
+  /* Elimina registros de la tabla calendario, según parámetros recibidos */
+    db.transaction(function (tx){
+    var select= 'DELETE ';
+    var from  = 'FROM equipo ';
+    var where = "WHERE id_torneo   = '"+String(torneo)+"' AND id_equipo = '"+String(equipo)+"'";
+    var sql   = select+from+where;
+    tx.executeSql(sql,[],function callback(tx,results){
+      callBack("ok");
+    },function(err){
+      notificacion("AVISO","No fue posible eliminar registros(PENDIENTE POR JUGAR) de la tabla equipo,favor de avisar a la oficina");
+      })
+    });
+  }
+
+
  function DeleteTables(){
   /*var db = openDatabase('futcho','1.0',"Base de Datos para el uso de la cédula",2 * 1021 * 1024);*/
-
   db.transaction(function (tx){
     tx.executeSql('DELETE FROM torneo');
   },function (err){
@@ -2122,28 +2262,19 @@ function actualizaReg(cadena,db,callBack){
  });
 }
 
-function checkNetWork() {
-  if(navigator.offline){
-    console.log("No hay internet");
-    return false;
-  } else {
-    console.log("Si hay internet");
+function checkNetConnection(){
+  var xhr = new XMLHttpRequest();
+  var file = "http://futcho7.com.mx/MiScore/Imagenes/logocte1.jpg";
+  var r = Math.round(Math.random() * 10000);
+  xhr.open('HEAD', file + "?subins=" + r, false);
+  try {
+   xhr.send();
+   if (xhr.status >= 200 && xhr.status < 304) {
     return true;
+   } else {
+    return false;
+   }
+  } catch (e) {
+   return false;
   }
-}
-
-function checkConnection() {
-  var networkState = navigator.connection.type;
-
-  var states = {};
-  states[Connection.UNKNOWN]  = 'Unknown connection';
-  states[Connection.ETHERNET] = 'Ethernet connection';
-  states[Connection.WIFI]     = 'WiFi connection';
-  states[Connection.CELL_2G]  = 'Cell 2G connection';
-  states[Connection.CELL_3G]  = 'Cell 3G connection';
-  states[Connection.CELL_4G]  = 'Cell 4G connection';
-  states[Connection.CELL]     = 'Cell generic connection';
-  states[Connection.NONE]     = 'No network connection';
-
-  alert('Connection type: ' + states[networkState]);
-}
+ }

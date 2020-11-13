@@ -1,6 +1,6 @@
 ;
 //asignar un nombre y versión al cache
-const CACHE_NAME = 'v1_cache_cedula',
+const CACHE_NAME = 'v1.0_cache_cedula',
   urlsToCache = [
     './',
     './css/framework7.bundle.min.css',
@@ -28,6 +28,22 @@ const CACHE_NAME = 'v1_cache_cedula',
     './js/jspdf.plugin.autotable.min.js',
     './js/index.js',
     './script.js',
+    './views/acerca-de.html',
+    './views/cargar.html',
+    './views/cedula-seleccionar.html',
+    './views/goles.html',
+    './views/home.html',
+    './views/replicar.html',
+    './views/settings.html',
+    './views/show-cedula.html',
+    './views/show-condiciones.html',
+    './views/show-firma.html',
+    './views/show-politica.html',
+    './views/tablero.html',
+    './views/tarjetas.html',
+    './index.html',
+    './fonts/DS-POINT.TTF',
+
   ]
 
 //durante la fase de instalación, generalmente se almacena en caché los archivos estáticos

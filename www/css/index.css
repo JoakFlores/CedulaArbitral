@@ -234,6 +234,8 @@
     font-weight: bold;
     font-size: 14px;
     color: green;
+    margin-top: 5px;
+    margin-bottom: 0;
 }
 
 .list-cedula-sel{
