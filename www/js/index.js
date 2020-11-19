@@ -1027,11 +1027,12 @@ function getJugadoresGoles(locvis){
       var regjugador = results.rows.length, i;
       var id_jugador = "";
       var jugador = "";
+      var jugador2 = "";
       var goles = 0;
       var foto = "";
       for(ii=0; ii<regjugador; ii++){
-        id_jugador = results.rows.item(ii).id_jugador;
-        jugador = "# "+results.rows.item(ii).jug_playera+" "+results.rows.item(ii).jug_nombre;
+        id_jugador= results.rows.item(ii).id_jugador;
+        jugador   = "# "+results.rows.item(ii).jug_playera+" "+results.rows.item(ii).jug_nombre;
         foto = results.rows.item(ii).jug_foto;
         goles = results.rows.item(ii).goles
         /* Si el jugador es = a comodín, se pone como foto de jugador, el logotipo de la liga */
@@ -1041,8 +1042,10 @@ function getJugadoresGoles(locvis){
         if (goles == null){
           goles = 0;
         }
-        var cadena = '<div class="block block-jugador-gol"><div class="row"><div class="col col-jugador-datos-gol" id="jugador-id-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto"><img src="data:image/png;base64, '+foto+'" width="60"/></div><div class="col col-icon-suma-gol" id="suma-gol" onclick = "insertaGol('+id_jugador+')"><img src="../img/plus-circle.jpg"/></div><div class="col col-icon-balon-gol" id="ico-balon"><img src="../img/Balon.ico" width="60"/></div><div class="col col-numgoles-gol" id="goles-'+id_jugador+'">'+String(goles)+'</div><div class="col col-icon-suma-gol" id="resta-gol" onclick = "eliminaGol('+id_jugador+')"><img src="../img/minus-circle.jpg"/></div></div></div>';
-        $$('#lista-jugadores').append(cadena);
+        //var cadena = '<div class="block block-jugador-gol"><div class="row"><div class="col col-jugador-datos-gol" id="jugador-id-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto"><img src="data:image/png;base64, '+foto+'" width="60"/></div><div class="col col-icon-suma-gol" id="suma-gol" onclick = "insertaGol('+id_jugador+')"><img src="../img/plus-circle.jpg"/></div><div class="col col-icon-balon-gol" id="ico-balon"><img src="../img/Balon.ico" width="60"/></div><div class="col col-numgoles-gol" id="goles-'+id_jugador+'">'+String(goles)+'</div><div class="col col-icon-suma-gol" id="resta-gol" onclick = "eliminaGol('+id_jugador+')"><img src="../img/minus-circle.jpg"/></div></div></div>';
+        //var cadena = '<div class="block block-jugador-gol"><div class="row"><div class="col col-jugador-datos-gol" id="jugador-id-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto"  onclick="showPhoto(\'' + foto + '\')"><img src="data:image/png;base64, '+foto+'" width="60"/></div><div class="col col-icon-suma-gol" id="suma-gol" onclick = "insertaGol('+id_jugador+')"><img src="../img/plus-circle.jpg"/></div><div class="col col-icon-balon-gol" id="ico-balon"><img src="../img/Balon.ico" width="60"/></div><div class="col col-numgoles-gol" id="goles-'+id_jugador+'">'+String(goles)+'</div><div class="col col-icon-suma-gol" id="resta-gol" onclick = "eliminaGol('+id_jugador+')"><img src="../img/minus-circle.jpg"/></div></div></div>';
+        var cadena = '<div class="block block-jugador-gol"><div class="row"><div class="col col-jugador-datos-gol" id="jugador-id-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto"  onclick="showPhoto(\'' + foto + '\',\'' + jugador + '\')"><img src="data:image/png;base64, '+foto+'" width="60"/></div><div class="col col-icon-suma-gol" id="suma-gol" onclick = "insertaGol('+id_jugador+')"><img src="../img/plus-circle.jpg"/></div><div class="col col-icon-balon-gol" id="ico-balon"><img src="../img/Balon.ico" width="60"/></div><div class="col col-numgoles-gol" id="goles-'+id_jugador+'">'+String(goles)+'</div><div class="col col-icon-suma-gol" id="resta-gol" onclick = "eliminaGol('+id_jugador+')"><img src="../img/minus-circle.jpg"/></div></div></div>';
+        $$('#lista-jugadores').append(cadena);                                   
       }
       
     });
@@ -1213,10 +1216,11 @@ function getJugadoresTarjetas(locvis){
         }
         if (rojas > 0){
           //El jugador tiene tarjeta roja, se muestra el ico correspondiente a la tarjeta roja
-          cadena_tarjetas = '<div class="block block-jugador-tarjeta"><div class="row"><div class="col col-jugador-datos-tarjeta" id="jugador-id-tarjeta-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto-tarjeta"><img src="data:image/png;base64, '+foto2+'" width="60"/></div><div class="col col-icon-tarjeta-amarilla" id="ico-tarjeta-amarilla"><img src="../img/tarjeta_amarilla.jpg" width="60"/></div><div class="col col-numtarjeta-amarilla" id="tarjetas-amarillas-'+id_jugador+'">'+String(amarillas)+'</div><div class="col col-icon-suma-tarjeta" id="suma-tarjeta" onclick = "insertaTarjeta('+id_jugador+')"><img src="../img/plus-circle.jpg"/></div><div class="col col-icon-suma-tarjeta" id="resta-amarilla" onclick = "eliminaTarjeta('+id_jugador+')"><img src="../img/minus-circle.jpg"/></div><div class="col col-icon-tarjeta-roja" id="ico-tarjeta-roja-'+id_jugador+'" onclick = "tarjetaRoja('+id_jugador+')"><img src="../img/tarjeta_roja.png" width="55"/></div></div></div>';
+          //cadena_tarjetas = '<div class="block block-jugador-tarjeta"><div class="row"><div class="col col-jugador-datos-tarjeta" id="jugador-id-tarjeta-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto-tarjeta"><img src="data:image/png;base64, '+foto2+'" width="60"/></div><div class="col col-icon-tarjeta-amarilla" id="ico-tarjeta-amarilla"><img src="../img/tarjeta_amarilla.jpg" width="60"/></div><div class="col col-numtarjeta-amarilla" id="tarjetas-amarillas-'+id_jugador+'">'+String(amarillas)+'</div><div class="col col-icon-suma-tarjeta" id="suma-tarjeta" onclick = "insertaTarjeta('+id_jugador+')"><img src="../img/plus-circle.jpg"/></div><div class="col col-icon-suma-tarjeta" id="resta-amarilla" onclick = "eliminaTarjeta('+id_jugador+')"><img src="../img/minus-circle.jpg"/></div><div class="col col-icon-tarjeta-roja" id="ico-tarjeta-roja-'+id_jugador+'" onclick = "tarjetaRoja('+id_jugador+')"><img src="../img/tarjeta_roja.png" width="55"/></div></div></div>';
+          cadena_tarjetas = '<div class="block block-jugador-tarjeta"><div class="row"><div class="col col-jugador-datos-tarjeta" id="jugador-id-tarjeta-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto-tarjeta" onclick="showPhoto(\'' + foto2 + '\',\'' + jugador + '\')"><img src="data:image/png;base64, '+foto2+'" width="60"/></div><div class="col col-icon-tarjeta-amarilla" id="ico-tarjeta-amarilla"><img src="../img/tarjeta_amarilla.jpg" width="60"/></div><div class="col col-numtarjeta-amarilla" id="tarjetas-amarillas-'+id_jugador+'">'+String(amarillas)+'</div><div class="col col-icon-suma-tarjeta" id="suma-tarjeta" onclick = "insertaTarjeta('+id_jugador+')"><img src="../img/plus-circle.jpg"/></div><div class="col col-icon-suma-tarjeta" id="resta-amarilla" onclick = "eliminaTarjeta('+id_jugador+')"><img src="../img/minus-circle.jpg"/></div><div class="col col-icon-tarjeta-roja" id="ico-tarjeta-roja-'+id_jugador+'" onclick = "tarjetaRoja('+id_jugador+')"><img src="../img/tarjeta_roja.png" width="55"/></div></div></div>';
         }else{
           //El jugador no tiene rojas, se muestra el ico correspondiente a la tarjeta bca.
-          cadena_tarjetas = '<div class="block block-jugador-tarjeta"><div class="row"><div class="col col-jugador-datos-tarjeta" id="jugador-id-tarjeta-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto-tarjeta"><img src="data:image/png;base64, '+foto2+'" width="60"/></div><div class="col col-icon-tarjeta-amarilla" id="ico-tarjeta-amarilla"><img src="../img/tarjeta_amarilla.jpg" width="60"/></div><div class="col col-numtarjeta-amarilla" id="tarjetas-amarillas-'+id_jugador+'">'+String(amarillas)+'</div><div class="col col-icon-suma-tarjeta" id="suma-tarjeta" onclick = "insertaTarjeta('+id_jugador+')"><img src="../img/plus-circle.jpg"/></div><div class="col col-icon-suma-tarjeta" id="resta-amarilla" onclick = "eliminaTarjeta('+id_jugador+')"><img src="../img/minus-circle.jpg"/></div><div class="col col-icon-tarjeta-roja" id="ico-tarjeta-roja-'+id_jugador+'" onclick = "tarjetaRoja('+id_jugador+')"><img src="../img/tarjeta_bco.jpg" width="55"/></div></div></div>';
+          cadena_tarjetas = '<div class="block block-jugador-tarjeta"><div class="row"><div class="col col-jugador-datos-tarjeta" id="jugador-id-tarjeta-'+id_jugador+'">'+jugador+'</div></div><div class="row"><div class="col" id="jugador-foto-tarjeta" onclick="showPhoto(\'' + foto2 + '\',\'' + jugador + '\')"><img src="data:image/png;base64, '+foto2+'" width="60"/></div><div class="col col-icon-tarjeta-amarilla" id="ico-tarjeta-amarilla"><img src="../img/tarjeta_amarilla.jpg" width="60"/></div><div class="col col-numtarjeta-amarilla" id="tarjetas-amarillas-'+id_jugador+'">'+String(amarillas)+'</div><div class="col col-icon-suma-tarjeta" id="suma-tarjeta" onclick = "insertaTarjeta('+id_jugador+')"><img src="../img/plus-circle.jpg"/></div><div class="col col-icon-suma-tarjeta" id="resta-amarilla" onclick = "eliminaTarjeta('+id_jugador+')"><img src="../img/minus-circle.jpg"/></div><div class="col col-icon-tarjeta-roja" id="ico-tarjeta-roja-'+id_jugador+'" onclick = "tarjetaRoja('+id_jugador+')"><img src="../img/tarjeta_bco.jpg" width="55"/></div></div></div>';
         }
         $$('#lista-jugadores-tarjetas').append(cadena_tarjetas);
       }
@@ -1347,6 +1351,21 @@ function getTarjetasRojas(gcliente,gsucursal,gidTorneo,gidJornada,gidJuego,glocv
   ejecutaQuery(cadena,db,"numRegistros",function(totRegistros){
     callBack(totRegistros);
   });
+}
+
+function showPhoto(vfoto,vnombre){
+  var vurl = 'data:image/png;base64, '+vfoto;
+  console.log(vnombre);
+  app7.photoBrowser.create({
+    photos:[
+      {
+        url: vurl, 
+        caption: vnombre
+      }
+    ],
+    theme: 'dark',
+    type: 'page'
+  }).open();
 }
 
 function cedula(){
@@ -2264,7 +2283,7 @@ function actualizaReg(cadena,db,callBack){
 
 function checkNetConnection(){
   var xhr = new XMLHttpRequest();
-  var file = "http://futcho7.com.mx/MiScore/Imagenes/logocte1.jpg";
+  var file = "https://cedula.futcho7.com.mx/img/cedula.png";
   var r = Math.round(Math.random() * 10000);
   xhr.open('HEAD', file + "?subins=" + r, false);
   try {

@@ -1,6 +1,6 @@
 ;
 //asignar un nombre y versión al cache
-const CACHE_NAME = 'v1.0_cache_cedula',
+const CACHE_NAME = 'v1.3_cache_cedula',
   urlsToCache = [
     './',
     './css/framework7.bundle.min.css',
