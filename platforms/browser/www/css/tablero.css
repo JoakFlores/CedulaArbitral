@@ -1,0 +1,149 @@
+.page-tablero{
+    background: black;
+    margin-top: 40px;
+    padding-top: 20px;
+}
+
+.block-tablero{
+    width: 96%;
+    height: 87%; /* tenia 83 2/12/2020*/
+    margin-top: 0;
+    margin-bottom: 0;
+    border-radius: 15px;
+    background: black;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0;
+    padding-right: 0;
+    border: 1.5px;
+    border-style: solid;
+    border-color: white;
+}
+
+.row-tablero-titulo-text1{
+    /* inicia nuevo */
+    /*background-color: orange;*/
+    height: 20%;
+    /* Termina nuevo */
+    font-size: 25px;
+    color: white;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+}
+
+.row-tablero-titulo-text3{
+    width: 100%;
+    text-align: center;
+    /* inicia nuevo */
+    /*background-color: orchid;*/
+    height: 27%;
+    /* termina nuevo */
+}
+
+.row-tablero-titulo-text2{
+    font-size: 15px;
+    color: white;
+    width: 100%; /* OJO aqui estaba comentado 2/Dic/2020, me doy cuenta cuando estoy reacomodando */
+    text-align: center;
+    margin-left: 3px;
+    margin-right: 3px;
+    margin: auto;
+    /* inicia nuevo */
+    height: 7%;
+    /*background-color: royalblue;*/
+    /* termina nuevo */
+}
+
+.row-tablero-boton{
+    width:20%;
+    margin:auto;
+    /* margin-bottom: 20px; se lo quito 2/12/2020 */
+    /* inicia nuevo */
+    /*background-color: silver;*/
+    height: 14%;
+    /* termina nuevo */
+}
+
+.row-tablero-titulo-text4{
+    width: 25%;
+    font-size: 15px;
+    /*
+    border-style: solid;
+    */
+    color: white;
+    width: 100%; /* OJO aqui estaba comentado 2/Dic/2020, me doy cuenta cuando estoy reacomodando */
+    text-align: center;
+    margin-left: 3px;
+    margin-right: 3px;
+    border-radius: 5px;
+    /* inicia nuevo */
+    height: 12%;
+    /*background-color: turquoise;*/
+    /* termina nuevo */
+        margin: auto;
+}
+
+.row-tablero-titulo-text5{
+    font-size: 40px;
+    width: 100%;
+    text-align: center;
+    /* inicia nuevo */
+    height: 20%;
+    /*background-color: tan;*/
+}
+
+.col-tablero-marcador{
+    font-size: 65px;
+    color: RGB(0,255,0);
+    border: 0;
+    font-family: font-tablero;
+}
+
+.row-tablero-cronometro{
+    font-size: 50px;
+    color: white;
+    width: 100%;
+    font-weight: bold;
+}
+
+.col-tablero-cronometro{
+    color:red;
+    font-size: 60px;
+    font-family: fantasy;
+    border-color: white;
+    border-style: solid;
+    border-radius: 5px;
+    font-family: font-tablero;
+}
+
+.col-tablero-equipos{
+    color:white;
+}
+
+.col-tablero-text-faltas{
+    border-color: white;
+    padding-top: 7px; /* Esto es nuevo 2/12/2020 */
+}
+
+.col-tablero-falta{
+    color:yellow;
+    border: 0;
+    font-family: font-tablero;
+}
+
+.col-tablero-periodo{
+    color: red;
+    border: 0;
+    font-family: font-tablero;
+}
+
+.col-tablero-cronometro{
+    color:red;
+    font-size: 60px;
+    font-family: fantasy;
+    border-color: white;
+    border-style: solid;
+    border-radius: 5px;
+    font-family: font-tablero;
+}

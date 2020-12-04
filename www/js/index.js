@@ -475,7 +475,7 @@ function ChecaCuenta(){
     var nomCliente = localStorage.getItem("nomCliente");
      //Borra contenido de lista-jugadores
     $$('#datos-cte-sede').html("");
-    var cadena = '<p id="nomLiga" class="texto-nomliga">'+nomCliente+'</p><p class="texto-sede">Sede:</p><p id="nomSede" class="nombre-sede">'+nomSucursal+'</p>';
+    var cadena = '<p id="nomLiga" class="texto-nomliga">'+nomCliente+'</p><p class="texto-sede">Sede:</p><p id="nomSede" class="nombre-sede">'+nomSucursal+'</p><p class="texto-version">V1.7</p>';
     $$('#datos-cte-sede').append(cadena);
     //$$('#nomSede').text(nomSucursal);
     //$$('#nomLiga').text(nomCliente);
@@ -1848,7 +1848,7 @@ function confirma_replicar(){
             app7.preloader.show();
             app7.request({ /* PWA */
               /*url: 'http://futcho7.com.mx/Cedula/WebService/setrecords.php',*/
-              url: 'https://futcho7.com.mx/Cedula/WebService/setrecords.php', 
+              url: 'https://cedula.futcho7.com.mx/WebService/setrecords.php', 
               data:{varJson:parvarJson},
               method: 'POST',
               crossDomain: true,

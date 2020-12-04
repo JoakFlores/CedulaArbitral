@@ -120,6 +120,12 @@
     margin-bottom: 0px;
 }
 
+.texto-version{
+    margin-left: 210px;
+    margin-top: -10px;
+    margin-bottom: 0px;
+}
+
 .texto-nomliga{
     margin-left: 95px;
     margin-top: 0px;
@@ -190,12 +196,6 @@
     background-position: center top;
     padding-top: 20px;
     padding-bottom: 60px;
-}
-
-.page-tablero{
-    background: black;
-    margin-top: 40px;
-    padding-top: 20px;
 }
 
 .page-goles{
@@ -329,76 +329,6 @@
     font-size: 27px;
 }
 
-.block-tablero{
-    width: 96%;
-    height: 83%;
-    margin-top: 0;
-    margin-bottom: 0;
-    border-radius: 15px;
-    background: black;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 0;
-    padding-right: 0;
-    border: 1.5px;
-    border-style: solid;
-    border-color: white;
-}
-
-.row-tablero-titulo-text1{
-    font-size: 25px;
-    color: white;
-    width: 100%;
-    text-align: center;
-    font-weight: bold;
-}
-
-.row-tablero-titulo-text2{
-    font-size: 15px;
-    color: white;
-    /*width: 100%;*/
-    text-align: center;
-    margin-left: 3px;
-    margin-right: 3px;
-}
-
-.col-tablero-equipos{
-    color:white;
-}
-
-.row-tablero-cronometro{
-    font-size: 50px;
-    color: white;
-    width: 100%;
-    font-weight: bold;
-}
-
-.row-tablero-titulo-text3{
-    width: 100%;
-    text-align: center;
-}
-
-.col-tablero-marcador{
-    font-size: 65px;
-    color: RGB(0,255,0);
-    border: 0;
-    font-family: font-tablero;
-    /*font-family: DS-Point;*/
-}
-
-.col-tablero-cronometro{
-    color:red;
-    font-size: 60px;
-    font-family: fantasy;
-    border-color: white;
-    border-style: solid;
-    border-radius: 5px;
-    font-family: font-tablero;
-    /* font-family: DS-Point; */
-
-}
-
-
 .block-cronometro{
     width: 25%;
     height: 25%;
@@ -421,46 +351,6 @@
     width: 100%;
     text-align: center;
     margin-top: 15px;
-}
-
-.row-tablero-titulo-text4{
-    width: 25%;
-    color: white;
-    text-align: center;
-    border-style: solid;
-    margin: auto;
-    border-radius: 5px;
-    margin-bottom: 10px;
-}
-
-.col-tablero-text-faltas{
-    border-color: white;
-}
-
-.col-tablero-falta{
-    color:yellow;
-    border: 0;
-    font-family: font-tablero;
-    /*font-family: DS-Point;*/
-}
-
-.col-tablero-periodo{
-    color: red;
-    border: 0;
-    font-family: font-tablero;
-    /*font-family: DS-Point;*/
-}
-
-.row-tablero-titulo-text5{
-    font-size: 40px;
-    width: 100%;
-    text-align: center;
-}
-
-.row-tablero-boton{
-    width:20%;
-    margin:auto;
-    margin-bottom: 20px;
 }
 
 .block-title-goles{
