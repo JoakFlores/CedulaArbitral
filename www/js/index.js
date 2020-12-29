@@ -98,6 +98,12 @@ var app7 = new Framework7({
       url: 'calendar/',
       dateFormat: 'dd.mm.yyyy',
     },
+    navbar:{
+      iosCenterTitle: false,
+    },
+    themes: [
+      'ios',
+    ],
     // Add default routes
     routes: [
       {

@@ -27,9 +27,11 @@
     --f7-preloader-modal-bg-color: rgba(243, 162, 11, 0.8);
   }
 
-.root.ios{
+.ios{
     --f7-navbar-bg-color: orange ;
+    --f7-navbar-bg-color-rgb : 255, 165, 0;
     --f7-font-family: 'DS-POINT', 'Roboto', system-ui, Noto, Helvetica, Arial, sans-serif;
+    --f7-navbar-title-font-weight: 800;
 }
 
   /* Configuración para todos los botones */
